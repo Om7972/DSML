@@ -24,60 +24,170 @@
             --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
         }
         html { scroll-behavior: smooth; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        body {
+            font-family: 'Inter', sans-serif; background: var(--bg-primary);
+            color: var(--text-primary); min-height: 100vh; line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Backgrounds */
         .bg-mesh { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-        .bg-mesh::before { content:''; position:absolute; width:500px; height:500px; background:radial-gradient(circle,var(--primary-glow),transparent 70%); top:-10%;left:-5%; border-radius:50%; filter:blur(120px); animation:float 20s ease-in-out infinite; }
+        .bg-mesh::before {
+            content: ''; position: absolute; width: 500px; height: 500px;
+            background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+            top: -10%; left: -5%; border-radius: 50%;
+            filter: blur(120px); animation: float 20s ease-in-out infinite;
+        }
         @keyframes float { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-40px)} }
-        .bg-grid { position:fixed; inset:0; z-index:0; pointer-events:none; background-image:linear-gradient(var(--border-default) 1px,transparent 1px),linear-gradient(90deg,var(--border-default) 1px,transparent 1px); background-size:60px 60px; opacity:0.3; }
-        .app-wrap { position:relative; z-index:1; }
-        .container { max-width:1000px; margin:0 auto; padding:0 1.5rem; }
+        .bg-grid {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: linear-gradient(var(--border-default) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--border-default) 1px, transparent 1px);
+            background-size: 60px 60px; opacity: 0.3;
+        }
+        .app-wrap { position: relative; z-index: 1; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; }
 
-        .navbar { position:fixed; top:0; left:0; right:0; z-index:100; backdrop-filter:blur(20px); background:rgba(15,15,35,0.85); border-bottom:1px solid var(--border-default); }
-        .navbar-inner { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; max-width:1200px; margin:0 auto; }
-        .nav-brand { display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:var(--text-primary); font-weight:800; font-size:1.15rem; }
-        .brand-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--primary),var(--accent)); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; color:white; }
-        .nav-links { display:flex; gap:0.25rem; list-style:none; }
-        .nav-links a { text-decoration:none; color:var(--text-secondary); font-size:0.85rem; font-weight:500; padding:0.5rem 0.75rem; border-radius:var(--radius-sm); transition:var(--transition-base); }
-        .nav-links a:hover, .nav-links a.active { color:var(--text-primary); background:var(--bg-glass); }
-        .badge { display:inline-flex; padding:3px 10px; border-radius:9999px; font-size:0.7rem; font-weight:600; }
-        .badge-accent { background:rgba(6,182,212,0.15); color:var(--accent-light); }
+        /* Navbar */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            background: rgba(15,15,35,0.85);
+            border-bottom: 1px solid var(--border-default);
+        }
+        .navbar-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem 1.5rem; max-width: 1200px; margin: 0 auto;
+        }
+        .nav-brand {
+            display: flex; align-items: center; gap: 0.5rem;
+            text-decoration: none; color: var(--text-primary);
+            font-weight: 800; font-size: 1.15rem;
+        }
+        .brand-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center; color: white;
+        }
+        .nav-links { display: flex; gap: 0.25rem; list-style: none; }
+        .nav-links a {
+            text-decoration: none; color: var(--text-secondary);
+            font-size: 0.85rem; font-weight: 500;
+            padding: 0.5rem 0.75rem; border-radius: var(--radius-sm);
+            transition: var(--transition-base);
+        }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-primary); background: var(--bg-glass); }
+        .badge { display: inline-flex; padding: 3px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; margin-left: 4px; }
+        .badge-accent { background: rgba(6,182,212,0.15); color: var(--accent-light); }
 
-        .card { background:var(--bg-card); backdrop-filter:blur(16px); border:1px solid var(--border-default); border-radius:var(--radius-lg); padding:2rem; transition:var(--transition-base); margin-bottom:1.5rem; }
-        .card:hover { border-color:var(--border-hover); }
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            transition: var(--transition-base);
+            margin-bottom: 1.5rem;
+        }
+        .card:hover { border-color: var(--border-hover); }
+        .card-title {
+            font-size: 1.15rem; font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .card-desc {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
 
-        .page-hero { padding:120px 0 40px; text-align:center; }
-        .page-hero h1 { font-size:clamp(2rem,5vw,3rem); font-weight:900; margin-bottom:1rem; }
-        .gradient-text { background:linear-gradient(135deg,var(--primary-light),var(--accent-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-        .page-hero p { color:var(--text-secondary); font-size:1.05rem; max-width:550px; margin:0 auto; }
+        /* Hero */
+        .page-hero { padding: 120px 0 40px; text-align: center; }
+        .page-hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; margin-bottom: 1rem; }
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .page-hero p { color: var(--text-secondary); font-size: 1.05rem; max-width: 550px; margin: 0 auto; }
 
-        .content-section { padding:40px 0 80px; }
-        .card h2 { font-size:1.15rem; font-weight:700; margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem; }
+        .content-section { padding: 40px 0 80px; }
+
+        /* Icons */
+        .icon-green { color: var(--success-light); }
+        .icon-yellow { color: #fbbf24; }
+        .icon-purple { color: var(--primary-light); }
+        .icon-cyan { color: var(--accent-light); }
+        .icon-pink { color: #c084fc; }
 
         /* API endpoint styling */
-        .endpoint { background:rgba(0,0,0,0.3); border:1px solid var(--border-default); border-radius:var(--radius-sm); padding:1rem 1.25rem; margin-bottom:1rem; display:flex; align-items:center; gap:1rem; transition:var(--transition-base); }
-        .endpoint:hover { border-color:var(--primary); background:rgba(99,102,241,0.05); }
-        .method { font-family:'JetBrains Mono',monospace; font-size:0.75rem; font-weight:700; padding:4px 10px; border-radius:4px; min-width:50px; text-align:center; }
-        .method-get { background:rgba(16,185,129,0.15); color:var(--success-light); }
-        .method-post { background:rgba(99,102,241,0.15); color:var(--primary-light); }
-        .endpoint-path { font-family:'JetBrains Mono',monospace; font-size:0.85rem; color:var(--text-primary); }
-        .endpoint-desc { font-size:0.8rem; color:var(--text-muted); margin-left:auto; }
-        .endpoint-auth { font-size:0.65rem; padding:2px 6px; border-radius:4px; background:rgba(245,158,11,0.15); color:#fbbf24; }
+        .endpoint {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border-default);
+            border-radius: var(--radius-sm); padding: 1rem 1.25rem;
+            margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;
+            transition: var(--transition-base);
+        }
+        .endpoint:hover { border-color: var(--primary); background: rgba(99,102,241,0.05); }
+        .method {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+            font-weight: 700; padding: 4px 10px; border-radius: 4px;
+            min-width: 50px; text-align: center;
+        }
+        .method-get { background: rgba(16,185,129,0.15); color: var(--success-light); }
+        .method-post { background: rgba(99,102,241,0.15); color: var(--primary-light); }
+        .endpoint-path { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-primary); }
+        .endpoint-desc { font-size: 0.8rem; color: var(--text-muted); margin-left: auto; }
+        .endpoint-auth {
+            font-size: 0.65rem; padding: 2px 6px; border-radius: 4px;
+            background: rgba(245,158,11,0.15); color: #fbbf24;
+        }
 
         /* Code block */
-        pre { background:rgba(0,0,0,0.4); border:1px solid var(--border-default); border-radius:var(--radius-sm); padding:1.25rem; overflow-x:auto; margin:1rem 0; }
-        code { font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--accent-light); }
-        pre code { color:var(--text-secondary); }
-        .code-key { color:var(--primary-light); }
-        .code-string { color:var(--success-light); }
-        .code-number { color:#fbbf24; }
+        pre {
+            background: rgba(0,0,0,0.4); border: 1px solid var(--border-default);
+            border-radius: var(--radius-sm); padding: 1.25rem;
+            overflow-x: auto; margin: 1rem 0;
+        }
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--accent-light); }
+        pre code { color: var(--text-secondary); }
+        .code-key { color: var(--primary-light); }
+        .code-string { color: var(--success-light); }
+        .code-number { color: #fbbf24; }
+        .code-comment { color: var(--text-muted); }
 
-        .footer { background:rgba(10,10,25,0.8); border-top:1px solid var(--border-default); padding:2rem 0; text-align:center; }
-        .footer p { font-size:0.8rem; color:var(--text-muted); }
+        /* Tech Stack Grid */
+        .tech-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem; margin-top: 0.5rem;
+        }
+        .tech-item {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.75rem; background: var(--bg-glass);
+            border-radius: var(--radius-sm);
+        }
+        .tech-name { font-weight: 600; font-size: 0.85rem; }
+        .tech-desc { font-size: 0.7rem; color: var(--text-muted); }
 
-        .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.6s ease-out,transform 0.6s ease-out; }
-        .reveal.visible { opacity:1; transform:translateY(0); }
+        /* Footer */
+        .footer {
+            background: rgba(10,10,25,0.8);
+            border-top: 1px solid var(--border-default);
+            padding: 2rem 0; text-align: center;
+        }
+        .footer p { font-size: 0.8rem; color: var(--text-muted); }
 
-        @media (max-width:768px) { .nav-links{display:none} .endpoint{flex-wrap:wrap} .endpoint-desc{margin-left:0;margin-top:0.5rem} }
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .endpoint { flex-wrap: wrap; }
+            .endpoint-desc { margin-left: 0; margin-top: 0.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -87,9 +197,9 @@
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="/" class="nav-brand">
-                <div class="brand-icon"><i data-lucide="heart-pulse" style="width:20px;height:20px"></i></div>
+                <div class="brand-icon"><i data-lucide="heart-pulse"></i></div>
                 <span>SymptomSense</span>
-                <span class="badge badge-accent" style="margin-left:4px">AI</span>
+                <span class="badge badge-accent">AI</span>
             </a>
             <ul class="nav-links">
                 <li><a href="/">Home</a></li>
@@ -113,19 +223,19 @@
         <div class="container">
 
             <div class="card reveal">
-                <h2><i data-lucide="server" style="width:20px;height:20px;color:var(--success-light)"></i> Base URL & Health</h2>
-                <p style="color:var(--text-secondary);margin-bottom:1rem">All API endpoints are relative to your server base URL.</p>
+                <h2 class="card-title"><i data-lucide="server" class="icon-green"></i> Base URL &amp; Health</h2>
+                <p class="card-desc">All API endpoints are relative to your server base URL.</p>
                 <pre><code>Base URL: <span class="code-string">http://localhost:5000/api</span></code></pre>
                 <div class="endpoint">
                     <span class="method method-get">GET</span>
                     <span class="endpoint-path">/api/health</span>
-                    <span class="endpoint-desc">System health check & model status</span>
+                    <span class="endpoint-desc">System health check &amp; model status</span>
                 </div>
             </div>
 
             <div class="card reveal">
-                <h2><i data-lucide="key" style="width:20px;height:20px;color:#fbbf24"></i> Authentication Endpoints</h2>
-                <p style="color:var(--text-secondary);margin-bottom:1rem">JWT token-based authentication. Include token in <code>Authorization: Bearer &lt;token&gt;</code> header.</p>
+                <h2 class="card-title"><i data-lucide="key" class="icon-yellow"></i> Authentication Endpoints</h2>
+                <p class="card-desc">JWT token-based authentication. Include token in <code>Authorization: Bearer &lt;token&gt;</code> header.</p>
                 <div class="endpoint">
                     <span class="method method-post">POST</span>
                     <span class="endpoint-path">/api/auth/register</span>
@@ -150,7 +260,7 @@
             </div>
 
             <div class="card reveal">
-                <h2><i data-lucide="brain-circuit" style="width:20px;height:20px;color:var(--primary-light)"></i> Prediction API</h2>
+                <h2 class="card-title"><i data-lucide="brain-circuit" class="icon-purple"></i> Prediction API</h2>
                 <div class="endpoint">
                     <span class="method method-get">GET</span>
                     <span class="endpoint-path">/api/symptoms</span>
@@ -175,7 +285,7 @@
             </div>
 
             <div class="card reveal">
-                <h2><i data-lucide="code" style="width:20px;height:20px;color:var(--accent-light)"></i> Meta Input Format</h2>
+                <h2 class="card-title"><i data-lucide="code" class="icon-cyan"></i> Meta Input Format</h2>
                 <pre><code><span class="code-key">{</span>
   <span class="code-key">"symptoms"</span>: [<span class="code-string">"headache"</span>, <span class="code-string">"high_fever"</span>, <span class="code-string">"cough"</span>],
   <span class="code-key">"patient_info"</span>: {
@@ -186,7 +296,7 @@
             </div>
 
             <div class="card reveal">
-                <h2><i data-lucide="file-json" style="width:20px;height:20px;color:var(--success-light)"></i> Meta Output Format</h2>
+                <h2 class="card-title"><i data-lucide="file-json" class="icon-green"></i> Meta Output Format</h2>
                 <pre><code><span class="code-key">{</span>
   <span class="code-key">"success"</span>: <span class="code-number">true</span>,
   <span class="code-key">"prediction"</span>: {
@@ -208,13 +318,13 @@
             </div>
 
             <div class="card reveal">
-                <h2><i data-lucide="terminal" style="width:20px;height:20px;color:#c084fc"></i> Quick Start Example</h2>
-                <pre><code><span style="color:var(--text-muted)"># Register a user</span>
+                <h2 class="card-title"><i data-lucide="terminal" class="icon-pink"></i> Quick Start Example</h2>
+                <pre><code><span class="code-comment"># Register a user</span>
 curl -X POST http://localhost:5000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"name":"John","email":"john@test.com","password":"secret123"}'
 
-<span style="color:var(--text-muted)"># Predict disease</span>
+<span class="code-comment"># Predict disease</span>
 curl -X POST http://localhost:5000/api/predict \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
@@ -222,23 +332,23 @@ curl -X POST http://localhost:5000/api/predict \
             </div>
 
             <div class="card reveal">
-                <h2><i data-lucide="database" style="width:20px;height:20px;color:#fbbf24"></i> Tech Stack</h2>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:0.5rem">
-                    <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:var(--bg-glass);border-radius:var(--radius-sm)">
-                        <i data-lucide="code-2" style="width:18px;height:18px;color:var(--primary-light)"></i>
-                        <div><div style="font-weight:600;font-size:0.85rem">Python + Flask</div><div style="font-size:0.7rem;color:var(--text-muted)">Backend API</div></div>
+                <h2 class="card-title"><i data-lucide="database" class="icon-yellow"></i> Tech Stack</h2>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <i data-lucide="code-2" class="icon-purple"></i>
+                        <div><div class="tech-name">Python + Flask</div><div class="tech-desc">Backend API</div></div>
                     </div>
-                    <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:var(--bg-glass);border-radius:var(--radius-sm)">
-                        <i data-lucide="brain" style="width:18px;height:18px;color:var(--accent-light)"></i>
-                        <div><div style="font-weight:600;font-size:0.85rem">scikit-learn SVM</div><div style="font-size:0.7rem;color:var(--text-muted)">ML Engine</div></div>
+                    <div class="tech-item">
+                        <i data-lucide="brain" class="icon-cyan"></i>
+                        <div><div class="tech-name">scikit-learn SVM</div><div class="tech-desc">ML Engine</div></div>
                     </div>
-                    <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:var(--bg-glass);border-radius:var(--radius-sm)">
-                        <i data-lucide="database" style="width:18px;height:18px;color:var(--success-light)"></i>
-                        <div><div style="font-weight:600;font-size:0.85rem">MongoDB</div><div style="font-size:0.7rem;color:var(--text-muted)">Database</div></div>
+                    <div class="tech-item">
+                        <i data-lucide="database" class="icon-green"></i>
+                        <div><div class="tech-name">MongoDB</div><div class="tech-desc">Database</div></div>
                     </div>
-                    <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;background:var(--bg-glass);border-radius:var(--radius-sm)">
-                        <i data-lucide="lock" style="width:18px;height:18px;color:#fbbf24"></i>
-                        <div><div style="font-weight:600;font-size:0.85rem">JWT Auth</div><div style="font-size:0.7rem;color:var(--text-muted)">Security</div></div>
+                    <div class="tech-item">
+                        <i data-lucide="lock" class="icon-yellow"></i>
+                        <div><div class="tech-name">JWT Auth</div><div class="tech-desc">Security</div></div>
                     </div>
                 </div>
             </div>

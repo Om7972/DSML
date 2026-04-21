@@ -16,6 +16,7 @@ import secrets
 import datetime
 from dotenv import load_dotenv
 from bson import ObjectId
+from urllib.parse import urlparse
 
 # Load environment variables
 load_dotenv()
@@ -33,7 +34,8 @@ CORS(app)
 try:
     from pymongo import MongoClient
     MONGO_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
-    MONGO_DB = os.getenv('MONGODB_DB_NAME', 'health_symptomsense')
+    uri_db_name = urlparse(MONGO_URI).path.lstrip('/')
+    MONGO_DB = os.getenv('MONGODB_DB_NAME') or (uri_db_name if uri_db_name else 'health_symptomsense')
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
     # Test connection
     client.server_info()
@@ -151,7 +153,17 @@ severity = pd.read_csv("datasets/Symptom-severity.csv")
 # ============================================================
 # Load ML Model
 # ============================================================
-svc = pickle.load(open("models/svc .pkl", "rb"))
+model_paths = ["models/svc.pkl", "models/svc .pkl"]
+svc = None
+for model_path in model_paths:
+    if os.path.exists(model_path):
+        with open(model_path, "rb") as model_file:
+            svc = pickle.load(model_file)
+        break
+if svc is None:
+    raise FileNotFoundError(
+        "No SVM model found. Run `python retrain.py` to generate models/svc.pkl."
+    )
 
 # ============================================================
 # Symptoms and Diseases Dictionaries
@@ -188,7 +200,12 @@ def get_predicted_value(patient_symptoms):
     for item in patient_symptoms:
         if item in symptoms_dict:
             input_vector[symptoms_dict[item]] = 1
-    return diseases_list[svc.predict([input_vector])[0]]
+    predicted_idx = int(svc.predict([input_vector])[0])
+    confidence = None
+    if hasattr(svc, "predict_proba"):
+        proba = svc.predict_proba([input_vector])[0]
+        confidence = float(np.max(proba) * 100.0)
+    return diseases_list[predicted_idx], confidence
 
 
 def get_severity_score(symptom_list):
@@ -413,9 +430,16 @@ def api_predict():
         symptoms_str = request.form.get('symptoms', '')
         symptom_list = [s.strip() for s in symptoms_str.split(',') if s.strip()]
         patient_info = {}
+        request_metadata = {}
     else:
+        meta_input = data.get('meta_input', {})
         symptom_list = data.get('symptoms', [])
         patient_info = data.get('patient_info', {})
+        request_metadata = data.get('metadata', {})
+        if meta_input:
+            symptom_list = meta_input.get('symptoms', symptom_list)
+            patient_info = meta_input.get('patient_info', patient_info)
+            request_metadata = meta_input.get('metadata', request_metadata)
     
     if not symptom_list:
         return jsonify({"error": "No symptoms provided", "success": False}), 400
@@ -432,7 +456,7 @@ def api_predict():
         }), 400
     
     # Predict disease
-    predicted_disease = get_predicted_value(valid_symptoms)
+    predicted_disease, model_confidence = get_predicted_value(valid_symptoms)
     dis_des, pre, med, die, wrkout = helper(predicted_disease)
     severity_score = get_severity_score(valid_symptoms)
     
@@ -464,8 +488,8 @@ def api_predict():
     # Format workouts
     workout_list = [str(w) for w in wrkout.values] if not wrkout.empty else []
     
-    # Confidence calculation (simple heuristic based on symptom count)
-    confidence = min(95.0, 60.0 + (len(valid_symptoms) * 8.5))
+    # Prefer model-derived confidence when available.
+    confidence = model_confidence if model_confidence is not None else min(95.0, 60.0 + (len(valid_symptoms) * 8.5))
     
     result = {
         "success": True,
@@ -491,6 +515,26 @@ def api_predict():
             "total_symptoms_available": len(symptoms_dict),
             "total_diseases": len(diseases_list),
             "timestamp": datetime.datetime.utcnow().isoformat()
+        },
+        "meta_input": {
+            "symptoms": valid_symptoms,
+            "patient_info": patient_info,
+            "metadata": request_metadata
+        },
+        "meta_output": {
+            "prediction": {
+                "disease": predicted_disease,
+                "confidence": round(confidence, 1),
+                "severity_score": severity_score
+            },
+            "model": {
+                "name": "Support Vector Machine",
+                "kernel": "linear",
+                "model_version": "1.0.0"
+            },
+            "timing": {
+                "timestamp": datetime.datetime.utcnow().isoformat()
+            }
         }
     }
     
@@ -544,7 +588,7 @@ def predict_page():
             message = "Please enter valid symptoms. No valid symptoms were found."
             return render_template('index.html', message=message)
         
-        predicted_disease = get_predicted_value(user_symptoms)
+        predicted_disease, _ = get_predicted_value(user_symptoms)
         dis_des, pre, med, die, wrkout = helper(predicted_disease)
         
         my_precautions = []
@@ -645,6 +689,8 @@ if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     host = os.getenv('HOST', '0.0.0.0')
     debug = os.getenv('FLASK_DEBUG', '1') == '1'
+    # Werkzeug's auto-reloader can raise WinError 10038 on some Windows/Python setups.
+    use_reloader = False if (os.name == "nt" and debug) else debug
     print(f"")
     print(f"== Health SymptomSense Server starting... ==")
     print(f"   URL: http://localhost:{port}")
@@ -652,4 +698,4 @@ if __name__ == '__main__':
     print(f"   Database: {'MongoDB' if MONGO_AVAILABLE else 'In-Memory Fallback'}")
     print(f"   ML Model: SVM Loaded ({len(symptoms_dict)} symptoms, {len(diseases_list)} diseases)")
     print(f"")
-    app.run(host=host, port=port, debug=debug)
+    app.run(host=host, port=port, debug=debug, use_reloader=use_reloader)
