@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Health SymptomSense</title>
+    <meta name="description" content="Get in touch with the Health SymptomSense team for support, feedback, or collaboration.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #6366f1; --primary-light: #818cf8; --primary-dark: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.3);
+            --accent: #06b6d4; --accent-light: #22d3ee;
+            --success: #10b981; --success-light: #34d399;
+            --bg-primary: #0f0f23; --bg-secondary: #1a1a3e;
+            --bg-card: rgba(26, 26, 62, 0.7); --bg-glass: rgba(255,255,255,0.05);
+            --bg-input: rgba(255,255,255,0.08);
+            --text-primary: #f1f5f9; --text-secondary: #94a3b8; --text-muted: #64748b;
+            --border-default: rgba(255,255,255,0.08); --border-hover: rgba(255,255,255,0.15);
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px;
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        .bg-mesh { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        .bg-mesh::before { content:''; position:absolute; width:500px; height:500px; background:radial-gradient(circle,var(--primary-glow),transparent 70%); top:-10%;left:-5%; border-radius:50%; filter:blur(120px); animation:float 20s ease-in-out infinite; }
+        .bg-mesh::after { content:''; position:absolute; width:400px; height:400px; background:radial-gradient(circle,rgba(6,182,212,0.12),transparent 70%); bottom:-10%;right:-5%; border-radius:50%; filter:blur(120px); animation:float 20s ease-in-out infinite reverse; }
+        @keyframes float { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-40px)} }
+        .bg-grid { position:fixed; inset:0; z-index:0; pointer-events:none; background-image:linear-gradient(var(--border-default) 1px,transparent 1px),linear-gradient(90deg,var(--border-default) 1px,transparent 1px); background-size:60px 60px; opacity:0.3; }
+        .app-wrap { position:relative; z-index:1; }
+        .container { max-width:900px; margin:0 auto; padding:0 1.5rem; }
+
+        .navbar { position:fixed; top:0; left:0; right:0; z-index:100; backdrop-filter:blur(20px); background:rgba(15,15,35,0.85); border-bottom:1px solid var(--border-default); }
+        .navbar-inner { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; max-width:1200px; margin:0 auto; }
+        .nav-brand { display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:var(--text-primary); font-weight:800; font-size:1.15rem; }
+        .brand-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--primary),var(--accent)); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; color:white; }
+        .nav-links { display:flex; gap:0.25rem; list-style:none; }
+        .nav-links a { text-decoration:none; color:var(--text-secondary); font-size:0.85rem; font-weight:500; padding:0.5rem 0.75rem; border-radius:var(--radius-sm); transition:var(--transition-base); }
+        .nav-links a:hover, .nav-links a.active { color:var(--text-primary); background:var(--bg-glass); }
+        .badge { display:inline-flex; padding:3px 10px; border-radius:9999px; font-size:0.7rem; font-weight:600; }
+        .badge-accent { background:rgba(6,182,212,0.15); color:var(--accent-light); }
+
+        .card { background:var(--bg-card); backdrop-filter:blur(16px); border:1px solid var(--border-default); border-radius:var(--radius-lg); padding:2rem; transition:var(--transition-base); }
+        .card:hover { border-color:var(--border-hover); }
+
+        .page-hero { padding:120px 0 40px; text-align:center; }
+        .page-hero h1 { font-size:clamp(2rem,5vw,3rem); font-weight:900; margin-bottom:1rem; }
+        .gradient-text { background:linear-gradient(135deg,var(--primary-light),var(--accent-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .page-hero p { color:var(--text-secondary); font-size:1.05rem; max-width:500px; margin:0 auto; }
+
+        .content-section { padding:40px 0 80px; }
+        .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
+
+        .form-group { margin-bottom:1.25rem; }
+        .form-label { display:block; font-size:0.8rem; font-weight:600; color:var(--text-secondary); margin-bottom:0.35rem; }
+        .form-input, .form-textarea { width:100%; padding:12px 16px; background:var(--bg-input); border:1px solid var(--border-default); border-radius:var(--radius-sm); color:var(--text-primary); font-size:0.9rem; font-family:'Inter',sans-serif; outline:none; transition:var(--transition-base); }
+        .form-input:focus, .form-textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-glow); }
+        .form-input::placeholder, .form-textarea::placeholder { color:var(--text-muted); }
+        .form-textarea { resize:vertical; min-height:140px; }
+
+        .btn { display:inline-flex; align-items:center; gap:0.5rem; padding:12px 24px; border-radius:var(--radius-sm); font-weight:600; font-size:0.9rem; text-decoration:none; cursor:pointer; border:none; transition:var(--transition-base); font-family:'Inter',sans-serif; }
+        .btn-primary { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:white; box-shadow:0 2px 12px var(--primary-glow); }
+        .btn-primary:hover { transform:translateY(-2px); box-shadow:0 4px 20px var(--primary-glow); }
+
+        .contact-info { display:flex; flex-direction:column; gap:1.5rem; }
+        .info-item { display:flex; align-items:flex-start; gap:1rem; }
+        .info-icon { width:44px; height:44px; border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .info-item h3 { font-size:0.95rem; font-weight:700; margin-bottom:0.25rem; }
+        .info-item p { color:var(--text-secondary); font-size:0.85rem; }
+
+        .toast { position:fixed; top:80px; right:20px; z-index:500; background:var(--bg-secondary); border:1px solid var(--border-default); border-radius:var(--radius-md); padding:12px 20px; font-size:0.85rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); display:none; border-left:3px solid var(--success); animation:toastIn 0.4s ease-out; }
+        .toast.show { display:flex; align-items:center; gap:0.5rem; }
+        @keyframes toastIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+
+        .footer { background:rgba(10,10,25,0.8); border-top:1px solid var(--border-default); padding:2rem 0; text-align:center; }
+        .footer p { font-size:0.8rem; color:var(--text-muted); }
+
+        .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.6s ease-out,transform 0.6s ease-out; }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+
+        @media (max-width:768px) { .nav-links{display:none} .contact-grid{grid-template-columns:1fr} }
+    </style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+<div class="app-wrap">
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="nav-brand">
+                <div class="brand-icon"><i data-lucide="heart-pulse" style="width:20px;height:20px"></i></div>
+                <span>SymptomSense</span>
+                <span class="badge badge-accent" style="margin-left:4px">AI</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/#predict-section">Predict</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact" class="active">Contact</a></li>
+                <li><a href="/developer">Developer</a></li>
+                <li><a href="/blog">Blog</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="page-hero">
+        <div class="container">
+            <h1>Get In <span class="gradient-text">Touch</span></h1>
+            <p>Have questions, feedback, or want to collaborate? We'd love to hear from you.</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <div class="contact-grid">
+                <div class="card reveal">
+                    <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:1.5rem">
+                        <i data-lucide="send" style="width:20px;height:20px;color:var(--primary-light)"></i>
+                        Send us a Message
+                    </h2>
+                    <form id="contactForm" onsubmit="submitContact(event)">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-input" id="contactName" placeholder="Your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" id="contactEmail" placeholder="you@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-textarea" id="contactMessage" placeholder="Tell us what's on your mind..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%">
+                            <i data-lucide="send" style="width:16px;height:16px"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card reveal" style="transition-delay:0.15s">
+                    <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:1.5rem">
+                        <i data-lucide="info" style="width:20px;height:20px;color:var(--accent-light)"></i>
+                        Contact Information
+                    </h2>
+                    <div class="contact-info">
+                        <div class="info-item">
+                            <div class="info-icon" style="background:rgba(99,102,241,0.1);color:var(--primary-light)">
+                                <i data-lucide="mail" style="width:20px;height:20px"></i>
+                            </div>
+                            <div>
+                                <h3>Email</h3>
+                                <p>contact@symptomsense.com</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon" style="background:rgba(6,182,212,0.1);color:var(--accent-light)">
+                                <i data-lucide="map-pin" style="width:20px;height:20px"></i>
+                            </div>
+                            <div>
+                                <h3>Location</h3>
+                                <p>Health Tech Hub, Innovation Park</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon" style="background:rgba(16,185,129,0.1);color:var(--success-light)">
+                                <i data-lucide="clock" style="width:20px;height:20px"></i>
+                            </div>
+                            <div>
+                                <h3>Business Hours</h3>
+                                <p>Mon-Fri: 9:00 AM - 6:00 PM IST</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon" style="background:rgba(245,158,11,0.1);color:#fbbf24">
+                                <i data-lucide="github" style="width:20px;height:20px"></i>
+                            </div>
+                            <div>
+                                <h3>GitHub</h3>
+                                <p>Open source contributions welcome</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="toast" id="contactToast">✅ Message sent successfully!</div>
+
+    <footer class="footer">
+        <div class="container"><p>&copy; 2026 Health SymptomSense. All rights reserved.</p></div>
+    </footer>
+</div>
+<script>
+    lucide.createIcons();
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    async function submitContact(e) {
+        e.preventDefault();
+        const name = document.getElementById('contactName').value;
+        const email = document.getElementById('contactEmail').value;
+        const message = document.getElementById('contactMessage').value;
+        try {
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, message })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const toast = document.getElementById('contactToast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 4000);
+                document.getElementById('contactForm').reset();
+            }
+        } catch(err) { alert('Error sending message'); }
+    }
+</script>
+</body>
+</html>

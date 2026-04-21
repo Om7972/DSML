@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Blog - Health SymptomSense</title>
+    <meta name="description" content="Read health articles and tips from Health SymptomSense - AI-powered medical insights.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #6366f1; --primary-light: #818cf8; --primary-dark: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.3);
+            --accent: #06b6d4; --accent-light: #22d3ee;
+            --success: #10b981; --success-light: #34d399;
+            --warning: #f59e0b;
+            --bg-primary: #0f0f23; --bg-secondary: #1a1a3e;
+            --bg-card: rgba(26, 26, 62, 0.7); --bg-glass: rgba(255,255,255,0.05);
+            --text-primary: #f1f5f9; --text-secondary: #94a3b8; --text-muted: #64748b;
+            --border-default: rgba(255,255,255,0.08); --border-hover: rgba(255,255,255,0.15);
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        .bg-mesh { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        .bg-mesh::before { content:''; position:absolute; width:500px; height:500px; background:radial-gradient(circle,var(--primary-glow),transparent 70%); top:-10%;left:-5%; border-radius:50%; filter:blur(120px); animation:float 20s ease-in-out infinite; }
+        @keyframes float { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-40px)} }
+        .bg-grid { position:fixed; inset:0; z-index:0; pointer-events:none; background-image:linear-gradient(var(--border-default) 1px,transparent 1px),linear-gradient(90deg,var(--border-default) 1px,transparent 1px); background-size:60px 60px; opacity:0.3; }
+        .app-wrap { position:relative; z-index:1; }
+        .container { max-width:1100px; margin:0 auto; padding:0 1.5rem; }
+
+        .navbar { position:fixed; top:0; left:0; right:0; z-index:100; backdrop-filter:blur(20px); background:rgba(15,15,35,0.85); border-bottom:1px solid var(--border-default); }
+        .navbar-inner { display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; max-width:1200px; margin:0 auto; }
+        .nav-brand { display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:var(--text-primary); font-weight:800; font-size:1.15rem; }
+        .brand-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--primary),var(--accent)); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; color:white; }
+        .nav-links { display:flex; gap:0.25rem; list-style:none; }
+        .nav-links a { text-decoration:none; color:var(--text-secondary); font-size:0.85rem; font-weight:500; padding:0.5rem 0.75rem; border-radius:var(--radius-sm); transition:var(--transition-base); }
+        .nav-links a:hover, .nav-links a.active { color:var(--text-primary); background:var(--bg-glass); }
+        .badge { display:inline-flex; padding:3px 10px; border-radius:9999px; font-size:0.7rem; font-weight:600; }
+        .badge-accent { background:rgba(6,182,212,0.15); color:var(--accent-light); }
+        .badge-sm { font-size:0.65rem; padding:2px 8px; }
+        .badge-primary { background:rgba(99,102,241,0.15); color:var(--primary-light); }
+        .badge-success { background:rgba(16,185,129,0.15); color:var(--success-light); }
+        .badge-warning { background:rgba(245,158,11,0.15); color:#fbbf24; }
+
+        .page-hero { padding:120px 0 40px; text-align:center; }
+        .page-hero h1 { font-size:clamp(2rem,5vw,3rem); font-weight:900; margin-bottom:1rem; }
+        .gradient-text { background:linear-gradient(135deg,var(--primary-light),var(--accent-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .page-hero p { color:var(--text-secondary); font-size:1.05rem; max-width:500px; margin:0 auto; }
+
+        .content-section { padding:40px 0 80px; }
+
+        .blog-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:1.5rem; }
+
+        .blog-card {
+            background:var(--bg-card); backdrop-filter:blur(16px);
+            border:1px solid var(--border-default); border-radius:var(--radius-lg);
+            overflow:hidden; transition:var(--transition-base);
+        }
+        .blog-card:hover { border-color:var(--border-hover); transform:translateY(-4px); box-shadow:0 8px 32px rgba(0,0,0,0.4); }
+
+        .blog-img { width:100%; height:180px; object-fit:cover; background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(6,182,212,0.1)); display:flex; align-items:center; justify-content:center; }
+        .blog-img i { opacity:0.4; }
+
+        .blog-content { padding:1.5rem; }
+        .blog-meta { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem; }
+        .blog-date { font-size:0.75rem; color:var(--text-muted); }
+        .blog-title { font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; line-height:1.4; }
+        .blog-excerpt { font-size:0.85rem; color:var(--text-secondary); line-height:1.7; margin-bottom:1rem; }
+        .blog-link { display:inline-flex; align-items:center; gap:0.35rem; font-size:0.8rem; font-weight:600; color:var(--primary-light); text-decoration:none; transition:var(--transition-base); }
+        .blog-link:hover { color:var(--accent-light); gap:0.6rem; }
+
+        /* Author avatar */
+        .author { display:flex; align-items:center; gap:0.5rem; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border-default); }
+        .author-avatar { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; color:white; }
+        .author-name { font-size:0.75rem; font-weight:600; }
+        .author-role { font-size:0.65rem; color:var(--text-muted); }
+
+        .footer { background:rgba(10,10,25,0.8); border-top:1px solid var(--border-default); padding:2rem 0; text-align:center; }
+        .footer p { font-size:0.8rem; color:var(--text-muted); }
+
+        .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.6s ease-out,transform 0.6s ease-out; }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+
+        @media (max-width:768px) { .nav-links{display:none} .blog-grid{grid-template-columns:1fr} }
+    </style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+<div class="app-wrap">
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="nav-brand">
+                <div class="brand-icon"><i data-lucide="heart-pulse" style="width:20px;height:20px"></i></div>
+                <span>SymptomSense</span>
+                <span class="badge badge-accent" style="margin-left:4px">AI</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/#predict-section">Predict</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+                <li><a href="/developer">Developer</a></li>
+                <li><a href="/blog" class="active">Blog</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="page-hero">
+        <div class="container">
+            <h1>Health <span class="gradient-text">Blog</span></h1>
+            <p>Stay informed with the latest insights on health, AI, and medical technology.</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <div class="blog-grid">
+
+                <article class="blog-card reveal">
+                    <div class="blog-img"><i data-lucide="brain" style="width:48px;height:48px;color:var(--primary-light)"></i></div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span class="badge badge-sm badge-primary">AI & ML</span>
+                            <span class="blog-date">April 18, 2026</span>
+                        </div>
+                        <h3 class="blog-title">How Machine Learning is Revolutionizing Disease Prediction</h3>
+                        <p class="blog-excerpt">Explore how SVM classification models trained on medical datasets can predict diseases with over 95% accuracy, transforming preliminary health assessment.</p>
+                        <a href="#" class="blog-link">Read More <i data-lucide="arrow-right" style="width:14px;height:14px"></i></a>
+                        <div class="author">
+                            <div class="author-avatar">D</div>
+                            <div><div class="author-name">Dr. Arun Sharma</div><div class="author-role">ML Research Lead</div></div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card reveal" style="transition-delay:0.1s">
+                    <div class="blog-img"><i data-lucide="shield-check" style="width:48px;height:48px;color:var(--success-light)"></i></div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span class="badge badge-sm badge-success">Wellness</span>
+                            <span class="blog-date">April 12, 2026</span>
+                        </div>
+                        <h3 class="blog-title">Understanding Symptom Severity: A Guide to Self-Assessment</h3>
+                        <p class="blog-excerpt">Learn how to evaluate your symptoms using severity scoring to understand when to seek immediate medical attention vs. home remedies.</p>
+                        <a href="#" class="blog-link">Read More <i data-lucide="arrow-right" style="width:14px;height:14px"></i></a>
+                        <div class="author">
+                            <div class="author-avatar">P</div>
+                            <div><div class="author-name">Priya Patel</div><div class="author-role">Health Writer</div></div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card reveal" style="transition-delay:0.2s">
+                    <div class="blog-img"><i data-lucide="apple" style="width:48px;height:48px;color:#fbbf24"></i></div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span class="badge badge-sm badge-warning">Nutrition</span>
+                            <span class="blog-date">April 5, 2026</span>
+                        </div>
+                        <h3 class="blog-title">Disease-Specific Diets: Eating Your Way to Better Health</h3>
+                        <p class="blog-excerpt">Discover how tailored dietary recommendations for 41 different conditions can accelerate recovery and improve overall well-being.</p>
+                        <a href="#" class="blog-link">Read More <i data-lucide="arrow-right" style="width:14px;height:14px"></i></a>
+                        <div class="author">
+                            <div class="author-avatar">R</div>
+                            <div><div class="author-name">Ravi Kumar</div><div class="author-role">Nutritionist</div></div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card reveal" style="transition-delay:0.3s">
+                    <div class="blog-img"><i data-lucide="dumbbell" style="width:48px;height:48px;color:var(--accent-light)"></i></div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span class="badge badge-sm badge-accent">Fitness</span>
+                            <span class="blog-date">March 28, 2026</span>
+                        </div>
+                        <h3 class="blog-title">Exercise as Medicine: Condition-Specific Workout Plans</h3>
+                        <p class="blog-excerpt">How targeted exercise routines complement medical treatment for conditions like hypertension, diabetes, and arthritis.</p>
+                        <a href="#" class="blog-link">Read More <i data-lucide="arrow-right" style="width:14px;height:14px"></i></a>
+                        <div class="author">
+                            <div class="author-avatar">S</div>
+                            <div><div class="author-name">Sneha Rao</div><div class="author-role">Fitness Expert</div></div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card reveal" style="transition-delay:0.4s">
+                    <div class="blog-img"><i data-lucide="lock" style="width:48px;height:48px;color:#f87171"></i></div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span class="badge badge-sm" style="background:rgba(239,68,68,0.15);color:#f87171">Security</span>
+                            <span class="blog-date">March 20, 2026</span>
+                        </div>
+                        <h3 class="blog-title">Protecting Health Data: JWT Auth & Encryption Best Practices</h3>
+                        <p class="blog-excerpt">How modern authentication and encryption methods ensure your personal health data remains private and secure on our platform.</p>
+                        <a href="#" class="blog-link">Read More <i data-lucide="arrow-right" style="width:14px;height:14px"></i></a>
+                        <div class="author">
+                            <div class="author-avatar">A</div>
+                            <div><div class="author-name">Amit Singh</div><div class="author-role">Security Engineer</div></div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="blog-card reveal" style="transition-delay:0.5s">
+                    <div class="blog-img"><i data-lucide="mic" style="width:48px;height:48px;color:#c084fc"></i></div>
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span class="badge badge-sm" style="background:rgba(168,85,247,0.15);color:#c084fc">Accessibility</span>
+                            <span class="blog-date">March 15, 2026</span>
+                        </div>
+                        <h3 class="blog-title">Voice-First Healthcare: Making Health Tech Accessible to All</h3>
+                        <p class="blog-excerpt">How Web Speech API integration in SymptomSense enables hands-free symptom reporting, making health analysis accessible for everyone.</p>
+                        <a href="#" class="blog-link">Read More <i data-lucide="arrow-right" style="width:14px;height:14px"></i></a>
+                        <div class="author">
+                            <div class="author-avatar">M</div>
+                            <div><div class="author-name">Meera Joshi</div><div class="author-role">UX Designer</div></div>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container"><p>&copy; 2026 Health SymptomSense. All rights reserved.</p></div>
+    </footer>
+</div>
+<script>
+    lucide.createIcons();
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,2265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health SymptomSense - AI-Powered Medical Recommendation System</title>
+    <meta name="description" content="Personalized Medical Recommendation System powered by Machine Learning. Predict diseases from symptoms and get medications, diets, workouts, and precautions.">
+    <meta name="keywords" content="health, AI, machine learning, disease prediction, symptoms, medical recommendation">
+    <meta name="author" content="Health SymptomSense Team">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        /* ============================================================ */
+        /* CSS RESET & DESIGN TOKENS                                    */
+        /* ============================================================ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            /* Primary Palette */
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.3);
+
+            /* Accent */
+            --accent: #06b6d4;
+            --accent-light: #22d3ee;
+            --accent-dark: #0891b2;
+
+            /* Success / Warning / Danger */
+            --success: #10b981;
+            --success-light: #34d399;
+            --warning: #f59e0b;
+            --warning-light: #fbbf24;
+            --danger: #ef4444;
+            --danger-light: #f87171;
+
+            /* Neutrals (Dark Mode Base) */
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a3e;
+            --bg-card: rgba(26, 26, 62, 0.7);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --bg-input: rgba(255, 255, 255, 0.08);
+
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            --border-default: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.15);
+
+            /* Typography */
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+
+            /* Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 40px var(--primary-glow);
+
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* ============================================================ */
+        /* ANIMATED BACKGROUND                                         */
+        /* ============================================================ */
+        .bg-mesh {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .bg-mesh::before, .bg-mesh::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            animation: float 20s ease-in-out infinite;
+        }
+        .bg-mesh::before {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+            top: -10%; left: -5%;
+        }
+        .bg-mesh::after {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.15), transparent 70%);
+            bottom: -10%; right: -5%;
+            animation-delay: -10s;
+        }
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image: linear-gradient(var(--border-default) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--border-default) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.3;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -40px) scale(1.05); }
+            50% { transform: translate(-20px, 30px) scale(0.95); }
+            75% { transform: translate(40px, 20px) scale(1.02); }
+        }
+
+        /* ============================================================ */
+        /* LAYOUT                                                       */
+        /* ============================================================ */
+        .app-container { position: relative; z-index: 1; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-lg); }
+
+        /* ============================================================ */
+        /* NAVBAR                                                       */
+        /* ============================================================ */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            background: rgba(15, 15, 35, 0.8);
+            border-bottom: 1px solid var(--border-default);
+            transition: var(--transition-base);
+        }
+        .navbar.scrolled {
+            background: rgba(15, 15, 35, 0.95);
+            box-shadow: var(--shadow-md);
+        }
+        .navbar-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: var(--space-md) var(--space-lg);
+            max-width: 1200px; margin: 0 auto;
+        }
+        .nav-brand {
+            display: flex; align-items: center; gap: var(--space-sm);
+            text-decoration: none; color: var(--text-primary);
+            font-weight: 800; font-size: 1.25rem;
+        }
+        .nav-brand .brand-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            box-shadow: 0 0 20px var(--primary-glow);
+            transition: var(--transition-base);
+        }
+        .nav-brand:hover .brand-icon { transform: rotate(10deg) scale(1.1); }
+
+        .nav-links {
+            display: flex; gap: var(--space-xs); list-style: none;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none; color: var(--text-secondary);
+            font-size: 0.875rem; font-weight: 500;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
+            transition: var(--transition-fast);
+            position: relative;
+        }
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-glass);
+        }
+        .nav-links a.active { color: var(--primary-light); }
+
+        .nav-auth { display: flex; gap: var(--space-sm); align-items: center; }
+
+        .nav-mobile-toggle {
+            display: none; background: none; border: none; color: var(--text-primary);
+            cursor: pointer; padding: var(--space-sm);
+        }
+
+        /* Avatar */
+        .user-avatar {
+            width: 36px; height: 36px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.875rem; color: white;
+            cursor: pointer; transition: var(--transition-base);
+            border: 2px solid transparent;
+        }
+        .user-avatar:hover {
+            border-color: var(--primary-light);
+            transform: scale(1.08);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        /* User dropdown */
+        .user-menu-wrap { position: relative; }
+        .user-dropdown {
+            position: absolute; top: calc(100% + 8px); right: 0;
+            width: 240px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            padding: var(--space-sm);
+            opacity: 0; visibility: hidden;
+            transform: translateY(-8px);
+            transition: var(--transition-base);
+        }
+        .user-dropdown.show {
+            opacity: 1; visibility: visible;
+            transform: translateY(0);
+        }
+        .user-dropdown-header {
+            padding: var(--space-sm) var(--space-md);
+            border-bottom: 1px solid var(--border-default);
+            margin-bottom: var(--space-sm);
+        }
+        .user-dropdown-header .user-name { font-weight: 600; font-size: 0.9rem; }
+        .user-dropdown-header .user-email { font-size: 0.75rem; color: var(--text-muted); }
+        .user-dropdown a, .user-dropdown button {
+            display: flex; align-items: center; gap: var(--space-sm);
+            width: 100%; padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
+            text-decoration: none; color: var(--text-secondary);
+            font-size: 0.875rem; background: none; border: none;
+            cursor: pointer; text-align: left;
+            transition: var(--transition-fast);
+        }
+        .user-dropdown a:hover, .user-dropdown button:hover {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+        }
+        .user-dropdown .logout-btn:hover { color: var(--danger); }
+
+        /* ============================================================ */
+        /* BUTTONS                                                      */
+        /* ============================================================ */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: var(--space-sm);
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 600; font-size: 0.875rem;
+            text-decoration: none;
+            cursor: pointer; border: none;
+            transition: var(--transition-base);
+            position: relative; overflow: hidden;
+            font-family: var(--font-main);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 2px 12px var(--primary-glow);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-default);
+        }
+        .btn-ghost:hover {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            border-color: var(--border-hover);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), var(--success-light));
+            color: white;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), var(--danger-light));
+            color: white;
+        }
+        .btn-lg { padding: 14px 28px; font-size: 1rem; }
+        .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+
+        .btn-icon {
+            width: 40px; height: 40px; padding: 0;
+            border-radius: var(--radius-sm);
+        }
+
+        /* Ripple effect */
+        .btn::after {
+            content: ''; position: absolute;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.2), transparent 60%);
+            transform: scale(0);
+            transition: transform 0.5s;
+        }
+        .btn:active::after { transform: scale(2); transition: 0s; }
+
+        /* ============================================================ */
+        /* BADGE                                                        */
+        /* ============================================================ */
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-primary { background: rgba(99, 102, 241, 0.15); color: var(--primary-light); }
+        .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--success-light); }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning-light); }
+        .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger-light); }
+        .badge-accent { background: rgba(6, 182, 212, 0.15); color: var(--accent-light); }
+        .badge-pulse {
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* ============================================================ */
+        /* GLASS CARD                                                   */
+        /* ============================================================ */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            transition: var(--transition-base);
+        }
+        .card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        .card-glow:hover {
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* ============================================================ */
+        /* HERO SECTION                                                 */
+        /* ============================================================ */
+        .hero {
+            padding: 140px 0 80px;
+            text-align: center;
+            position: relative;
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-full);
+            padding: 6px 16px 6px 8px;
+            margin-bottom: var(--space-lg);
+            font-size: 0.8rem; color: var(--text-secondary);
+            animation: slideDown 0.8s ease-out;
+        }
+        .hero-badge .dot {
+            width: 8px; height: 8px;
+            background: var(--success); border-radius: 50%;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
+        .hero-title {
+            font-size: clamp(2.2rem, 6vw, 4rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: var(--space-lg);
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, var(--primary-light), var(--accent-light), var(--success-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto var(--space-2xl);
+            line-height: 1.7;
+            animation: slideUp 0.8s ease-out 0.4s both;
+        }
+
+        .hero-actions {
+            display: flex; gap: var(--space-md);
+            justify-content: center; flex-wrap: wrap;
+            animation: slideUp 0.8s ease-out 0.6s both;
+        }
+
+        .hero-stats {
+            display: flex; justify-content: center; gap: var(--space-3xl);
+            margin-top: var(--space-3xl);
+            animation: fadeIn 0.8s ease-out 0.8s both;
+        }
+        .hero-stat { text-align: center; }
+        .hero-stat-value {
+            font-size: 2rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* ============================================================ */
+        /* HOW IT WORKS SECTION                                         */
+        /* ============================================================ */
+        .section { padding: 80px 0; }
+        .section-header { text-align: center; margin-bottom: var(--space-3xl); }
+        .section-title {
+            font-size: 2rem; font-weight: 800;
+            margin-bottom: var(--space-sm);
+        }
+        .section-subtitle {
+            color: var(--text-secondary); font-size: 1rem;
+            max-width: 500px; margin: 0 auto;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-xl);
+        }
+        .step-card {
+            text-align: center;
+            padding: var(--space-2xl) var(--space-xl);
+        }
+        .step-icon {
+            width: 72px; height: 72px;
+            border-radius: var(--radius-lg);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto var(--space-lg);
+            font-size: 1.5rem;
+            transition: var(--transition-base);
+        }
+        .step-card:nth-child(1) .step-icon {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.05));
+            color: var(--primary-light);
+        }
+        .step-card:nth-child(2) .step-icon {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(6, 182, 212, 0.05));
+            color: var(--accent-light);
+        }
+        .step-card:nth-child(3) .step-icon {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+            color: var(--success-light);
+        }
+        .step-card:hover .step-icon { transform: scale(1.1) rotate(5deg); }
+        .step-num {
+            font-size: 0.7rem; font-weight: 700;
+            color: var(--text-muted); letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: var(--space-sm);
+        }
+        .step-title { font-size: 1.15rem; font-weight: 700; margin-bottom: var(--space-sm); }
+        .step-desc { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; }
+
+        /* ============================================================ */
+        /* PREDICT SECTION                                              */
+        /* ============================================================ */
+        .predict-section { padding: 80px 0; }
+        .predict-card {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+        .predict-header {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            padding: var(--space-2xl);
+            text-align: center;
+            position: relative;
+        }
+        .predict-header::after {
+            content: '';
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-light), transparent);
+        }
+        .predict-header h2 {
+            font-size: 1.5rem; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; gap: var(--space-sm);
+        }
+        .predict-body { padding: var(--space-2xl); }
+
+        /* Symptom chips */
+        .symptom-selector { margin-bottom: var(--space-xl); }
+        .symptom-search-wrap { position: relative; margin-bottom: var(--space-md); }
+        .symptom-search {
+            width: 100%;
+            padding: 14px 18px 14px 48px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: var(--font-main);
+            outline: none;
+            transition: var(--transition-base);
+        }
+        .symptom-search:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+        .symptom-search::placeholder { color: var(--text-muted); }
+        .symptom-search-icon {
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .symptom-dropdown {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            max-height: 250px; overflow-y: auto;
+            z-index: 50;
+            display: none;
+            box-shadow: var(--shadow-lg);
+        }
+        .symptom-dropdown.show { display: block; }
+        .symptom-option {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: var(--transition-fast);
+        }
+        .symptom-option:hover { background: var(--bg-glass); }
+        .symptom-option.selected { background: rgba(99, 102, 241, 0.1); color: var(--primary-light); }
+
+        .selected-symptoms {
+            display: flex; flex-wrap: wrap; gap: var(--space-sm);
+            min-height: 40px;
+            padding: var(--space-sm) 0;
+        }
+        .symptom-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: var(--radius-full);
+            font-size: 0.8rem; font-weight: 500;
+            color: var(--primary-light);
+            animation: chipIn 0.3s ease-out;
+        }
+        @keyframes chipIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .symptom-chip .remove-chip {
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: var(--transition-fast);
+            border: none; color: var(--primary-light);
+            font-size: 0.7rem;
+        }
+        .symptom-chip .remove-chip:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Voice button */
+        .voice-row {
+            display: flex; gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+        .voice-btn {
+            flex-shrink: 0;
+        }
+        .voice-btn.listening {
+            animation: voice-pulse 1s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4) !important;
+            background: linear-gradient(135deg, var(--danger), var(--danger-light)) !important;
+        }
+        @keyframes voice-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .voice-status {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex; align-items: center;
+        }
+
+        /* Predict button */
+        .predict-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-base);
+            position: relative;
+            overflow: hidden;
+            font-family: var(--font-main);
+        }
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px var(--primary-glow);
+        }
+        .predict-btn:disabled {
+            opacity: 0.5; cursor: not-allowed;
+            transform: none; box-shadow: none;
+        }
+        .predict-btn .btn-text { display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        /* ============================================================ */
+        /* LOADING / PROGRESS INDICATOR                                 */
+        /* ============================================================ */
+        .loading-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(15, 15, 35, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center; justify-content: center;
+            flex-direction: column; gap: var(--space-lg);
+        }
+        .loading-overlay.show { display: flex; }
+
+        .loader-ring {
+            width: 56px; height: 56px;
+            border: 3px solid var(--border-default);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loader-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            animation: fade-text 1.5s ease-in-out infinite;
+        }
+        @keyframes fade-text {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .progress-bar-wrap {
+            width: 200px; height: 4px;
+            background: var(--border-default);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: var(--radius-full);
+            animation: progress-fill 2s ease-in-out infinite;
+        }
+        @keyframes progress-fill {
+            0% { width: 0; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        /* ============================================================ */
+        /* RESULTS SECTION                                              */
+        /* ============================================================ */
+        .results-section {
+            padding: 40px 0 80px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+        .disease-name {
+            font-size: 2rem; font-weight: 900;
+            background: linear-gradient(135deg, var(--danger-light), var(--warning-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .result-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-2xl);
+        }
+        .metric-card {
+            text-align: center;
+            padding: var(--space-lg);
+        }
+        .metric-value {
+            font-size: 1.8rem; font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .metric-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Result tabs */
+        .result-tabs {
+            display: flex; gap: var(--space-xs);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            margin-bottom: var(--space-xl);
+            overflow-x: auto;
+        }
+        .result-tab {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem; font-weight: 600;
+            color: var(--text-secondary);
+            background: none; border: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            white-space: nowrap;
+            font-family: var(--font-main);
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .result-tab:hover { color: var(--text-primary); }
+        .result-tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 8px var(--primary-glow);
+        }
+
+        .result-panel { display: none; animation: fadeIn 0.3s ease-out; }
+        .result-panel.active { display: block; }
+
+        .result-panel .card { margin-bottom: var(--space-md); }
+        .result-panel h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: var(--space-md); }
+        .result-panel p { color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem; }
+
+        .result-list { list-style: none; display: flex; flex-direction: column; gap: var(--space-sm); }
+        .result-list li {
+            padding: 12px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            display: flex; align-items: center; gap: var(--space-sm);
+            transition: var(--transition-fast);
+        }
+        .result-list li:hover {
+            border-color: var(--border-hover);
+            background: rgba(255,255,255,0.06);
+        }
+        .result-list li .list-icon {
+            width: 28px; height: 28px;
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.75rem;
+        }
+
+        /* ============================================================ */
+        /* AUTH MODAL                                                    */
+        /* ============================================================ */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden;
+            transition: var(--transition-base);
+            padding: var(--space-md);
+        }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+
+        .modal-box {
+            width: 100%; max-width: 420px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            transform: translateY(20px) scale(0.95);
+            transition: var(--transition-base);
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-overlay.show .modal-box {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header-area {
+            padding: var(--space-2xl) var(--space-2xl) var(--space-lg);
+            text-align: center;
+        }
+        .modal-header-area h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: var(--space-xs); }
+        .modal-header-area p { font-size: 0.85rem; color: var(--text-secondary); }
+
+        .modal-body-area { padding: 0 var(--space-2xl) var(--space-2xl); }
+
+        .form-group { margin-bottom: var(--space-md); }
+        .form-label {
+            display: block;
+            font-size: 0.8rem; font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-xs);
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: var(--font-main);
+            outline: none;
+            transition: var(--transition-base);
+        }
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+        .form-input::placeholder { color: var(--text-muted); }
+
+        .form-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--danger-light);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            margin-bottom: var(--space-md);
+            display: none;
+        }
+        .form-error.show { display: block; animation: shake 0.4s ease-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .form-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success-light);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            margin-bottom: var(--space-md);
+            display: none;
+        }
+        .form-success.show { display: block; }
+
+        .form-divider {
+            text-align: center;
+            margin: var(--space-lg) 0;
+            position: relative;
+        }
+        .form-divider::before {
+            content: '';
+            position: absolute; top: 50%; left: 0; right: 0;
+            height: 1px; background: var(--border-default);
+        }
+        .form-divider span {
+            background: var(--bg-secondary);
+            padding: 0 var(--space-md);
+            position: relative;
+            font-size: 0.75rem; color: var(--text-muted);
+        }
+
+        .form-footer {
+            text-align: center;
+            font-size: 0.8rem; color: var(--text-muted);
+        }
+        .form-footer a {
+            color: var(--primary-light);
+            text-decoration: none; font-weight: 600;
+            cursor: pointer;
+        }
+        .form-footer a:hover { text-decoration: underline; }
+
+        .modal-close {
+            position: absolute; top: 16px; right: 16px;
+            width: 32px; height: 32px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-default);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition-fast);
+        }
+        .modal-close:hover {
+            background: var(--danger); color: white;
+            border-color: var(--danger);
+        }
+
+        /* ============================================================ */
+        /* FEATURES SECTION                                             */
+        /* ============================================================ */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-xl);
+        }
+        .feature-card { padding: var(--space-2xl); }
+        .feature-icon {
+            width: 48px; height: 48px;
+            border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: var(--space-md);
+        }
+        .feature-title { font-size: 1.1rem; font-weight: 700; margin-bottom: var(--space-sm); }
+        .feature-desc { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; }
+
+        /* ============================================================ */
+        /* CTA SECTION                                                  */
+        /* ============================================================ */
+        .cta-section {
+            padding: 80px 0;
+        }
+        .cta-box {
+            text-align: center;
+            padding: var(--space-3xl);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.05));
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-xl);
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-box::before {
+            content: '';
+            position: absolute; top: -100px; right: -100px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+            border-radius: 50%;
+        }
+        .cta-box h2 { font-size: 2rem; font-weight: 800; margin-bottom: var(--space-md); position: relative; }
+        .cta-box p { color: var(--text-secondary); max-width: 500px; margin: 0 auto var(--space-xl); position: relative; }
+
+        /* ============================================================ */
+        /* FOOTER                                                       */
+        /* ============================================================ */
+        .footer {
+            background: rgba(10, 10, 25, 0.8);
+            border-top: 1px solid var(--border-default);
+            padding: 60px 0 30px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-2xl);
+            margin-bottom: var(--space-2xl);
+        }
+        .footer-brand { max-width: 280px; }
+        .footer-brand .nav-brand { margin-bottom: var(--space-md); display: inline-flex; }
+        .footer-brand p { color: var(--text-muted); font-size: 0.85rem; line-height: 1.7; }
+
+        .footer-col h4 {
+            font-size: 0.8rem; font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: var(--space-md);
+        }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: var(--space-sm); }
+        .footer-col ul li a {
+            color: var(--text-muted); text-decoration: none;
+            font-size: 0.85rem;
+            transition: var(--transition-fast);
+        }
+        .footer-col ul li a:hover { color: var(--text-primary); }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-default);
+            padding-top: var(--space-xl);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: var(--space-md);
+        }
+        .footer-bottom p { font-size: 0.8rem; color: var(--text-muted); }
+        .footer-socials { display: flex; gap: var(--space-sm); }
+        .footer-socials a {
+            width: 36px; height: 36px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-default);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted); text-decoration: none;
+            transition: var(--transition-fast);
+        }
+        .footer-socials a:hover {
+            border-color: var(--primary);
+            color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        /* ============================================================ */
+        /* TOAST NOTIFICATION                                           */
+        /* ============================================================ */
+        .toast-container {
+            position: fixed; top: 80px; right: 20px;
+            z-index: 500;
+            display: flex; flex-direction: column; gap: var(--space-sm);
+        }
+        .toast {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 12px 20px;
+            font-size: 0.85rem;
+            display: flex; align-items: center; gap: var(--space-sm);
+            box-shadow: var(--shadow-lg);
+            animation: toastIn 0.4s ease-out;
+            min-width: 280px;
+        }
+        .toast.hide { animation: toastOut 0.3s ease-in forwards; }
+        .toast-success { border-left: 3px solid var(--success); }
+        .toast-error { border-left: 3px solid var(--danger); }
+        .toast-info { border-left: 3px solid var(--accent); }
+
+        @keyframes toastIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes toastOut {
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* ============================================================ */
+        /* ANIMATIONS                                                   */
+        /* ============================================================ */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Intersection observer driven */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-hover);
+            border-radius: var(--radius-full);
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* ============================================================ */
+        /* RESPONSIVE                                                   */
+        /* ============================================================ */
+        @media (max-width: 768px) {
+            .nav-links, .nav-auth { display: none; }
+            .nav-mobile-toggle { display: flex; }
+            .hero-stats { flex-direction: column; gap: var(--space-lg); }
+            .result-tabs { flex-wrap: nowrap; }
+            .footer-bottom { flex-direction: column; text-align: center; }
+
+            /* Mobile menu */
+            .mobile-menu {
+                position: fixed; inset: 0;
+                background: var(--bg-primary);
+                z-index: 150; padding: 80px var(--space-lg) var(--space-lg);
+                transform: translateX(-100%);
+                transition: var(--transition-base);
+                display: flex; flex-direction: column;
+            }
+            .mobile-menu.open { transform: translateX(0); }
+            .mobile-menu a {
+                display: block; padding: var(--space-md) 0;
+                color: var(--text-primary); text-decoration: none;
+                font-size: 1.1rem; font-weight: 600;
+                border-bottom: 1px solid var(--border-default);
+            }
+            .mobile-menu .mobile-auth { margin-top: auto; }
+        }
+        @media (min-width: 769px) {
+            .mobile-menu { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader-ring"></div>
+    <div class="loader-text" id="loadingText">Analyzing symptoms with AI...</div>
+    <div class="progress-bar-wrap">
+        <div class="progress-bar-fill"></div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="app-container">
+
+    <!-- ============================================================ -->
+    <!-- NAVBAR                                                         -->
+    <!-- ============================================================ -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="nav-brand">
+                <div class="brand-icon">
+                    <i data-lucide="heart-pulse" style="width:20px;height:20px"></i>
+                </div>
+                <span>SymptomSense</span>
+                <span class="badge badge-accent badge-pulse" style="margin-left:4px">AI</span>
+            </a>
+
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#hero" class="active">Home</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#predict-section">Predict</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+                <li><a href="/blog">Blog</a></li>
+            </ul>
+
+            <div class="nav-auth" id="navAuth">
+                <!-- Unauthenticated -->
+                <div id="authButtons">
+                    <button class="btn btn-ghost btn-sm" onclick="openAuthModal('login')">Log In</button>
+                    <button class="btn btn-primary btn-sm" onclick="openAuthModal('register')">Sign Up</button>
+                </div>
+                <!-- Authenticated -->
+                <div id="userMenuArea" style="display:none">
+                    <div class="user-menu-wrap">
+                        <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()">A</div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <div class="user-dropdown-header">
+                                <div class="user-name" id="dropdownName">User</div>
+                                <div class="user-email" id="dropdownEmail">user@email.com</div>
+                            </div>
+                            <a href="#predict-section"><i data-lucide="activity" style="width:16px;height:16px"></i> New Prediction</a>
+                            <a href="#" onclick="viewHistory(event)"><i data-lucide="clock" style="width:16px;height:16px"></i> Prediction History</a>
+                            <button class="logout-btn" onclick="logoutUser()"><i data-lucide="log-out" style="width:16px;height:16px"></i> Sign Out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="nav-mobile-toggle" id="mobileToggle" onclick="toggleMobileMenu()">
+                <i data-lucide="menu" style="width:24px;height:24px"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#hero" onclick="closeMobileMenu()">Home</a>
+        <a href="#how-it-works" onclick="closeMobileMenu()">How It Works</a>
+        <a href="#predict-section" onclick="closeMobileMenu()">Predict Disease</a>
+        <a href="#features" onclick="closeMobileMenu()">Features</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/blog">Blog</a>
+        <div class="mobile-auth" id="mobileAuthArea" style="padding-top:var(--space-lg)">
+            <button class="btn btn-primary" style="width:100%" onclick="openAuthModal('login');closeMobileMenu()">Log In / Sign Up</button>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- HERO SECTION                                                   -->
+    <!-- ============================================================ -->
+    <section id="hero" class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <span class="dot"></span>
+                <span>Powered by Machine Learning</span>
+                <span class="badge badge-success">v2.0</span>
+            </div>
+
+            <h1 class="hero-title">
+                Your Health, <br>
+                <span class="gradient-text">Predicted by AI</span>
+            </h1>
+
+            <p class="hero-subtitle">
+                Select your symptoms and let our SVM-powered AI engine predict potential diseases,
+                recommending medications, diets, workouts, and precautions — instantly.
+            </p>
+
+            <div class="hero-actions">
+                <a href="#predict-section" class="btn btn-primary btn-lg">
+                    <i data-lucide="scan-search" style="width:18px;height:18px"></i>
+                    Start Diagnosis
+                </a>
+                <a href="#how-it-works" class="btn btn-ghost btn-lg">
+                    <i data-lucide="info" style="width:18px;height:18px"></i>
+                    Learn More
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="statSymptoms">132</div>
+                    <div class="hero-stat-label">Symptoms Tracked</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value" id="statDiseases">41</div>
+                    <div class="hero-stat-label">Diseases Predicted</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">95%</div>
+                    <div class="hero-stat-label">ML Accuracy</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">&lt;2s</div>
+                    <div class="hero-stat-label">Prediction Speed</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- HOW IT WORKS                                                   -->
+    <!-- ============================================================ -->
+    <section id="how-it-works" class="section">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="badge badge-primary" style="margin-bottom:var(--space-sm)">Process</span>
+                <h2 class="section-title">How It Works</h2>
+                <p class="section-subtitle">Three simple steps to get personalized health insights powered by our ML model.</p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="card step-card card-glow reveal">
+                    <div class="step-icon"><i data-lucide="list-checks" style="width:32px;height:32px"></i></div>
+                    <div class="step-num">Step 01</div>
+                    <div class="step-title">Select Symptoms</div>
+                    <div class="step-desc">Choose from 132 medically-recognized symptoms using our intelligent search and auto-complete system.</div>
+                </div>
+                <div class="card step-card card-glow reveal" style="transition-delay:0.1s">
+                    <div class="step-icon"><i data-lucide="brain-circuit" style="width:32px;height:32px"></i></div>
+                    <div class="step-num">Step 02</div>
+                    <div class="step-title">AI Analysis</div>
+                    <div class="step-desc">Our Support Vector Machine model analyzes your symptom pattern against 4,920 training cases to predict the disease.</div>
+                </div>
+                <div class="card step-card card-glow reveal" style="transition-delay:0.2s">
+                    <div class="step-icon"><i data-lucide="clipboard-list" style="width:32px;height:32px"></i></div>
+                    <div class="step-num">Step 03</div>
+                    <div class="step-title">Get Recommendations</div>
+                    <div class="step-desc">Receive detailed disease info, precautions, medications, diets, and workout recommendations tailored for you.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- PREDICT SECTION                                                -->
+    <!-- ============================================================ -->
+    <section id="predict-section" class="predict-section">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="badge badge-primary" style="margin-bottom:var(--space-sm)">Diagnosis</span>
+                <h2 class="section-title">Predict Disease</h2>
+                <p class="section-subtitle">Select your symptoms below and let our AI analyze them.</p>
+            </div>
+
+            <div class="predict-card reveal">
+                <div class="predict-header">
+                    <h2>
+                        <i data-lucide="stethoscope" style="width:24px;height:24px"></i>
+                        Symptom Analyzer
+                    </h2>
+                    <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;margin-top:8px">
+                        Search & select symptoms or use voice input
+                    </p>
+                </div>
+
+                <div class="predict-body">
+                    <!-- Symptom selector -->
+                    <div class="symptom-selector">
+                        <label class="form-label">Search Symptoms:</label>
+                        <div class="symptom-search-wrap">
+                            <i data-lucide="search" style="width:18px;height:18px" class="symptom-search-icon"></i>
+                            <input type="text" class="symptom-search" id="symptomSearch"
+                                   placeholder="Type to search symptoms (e.g., headache, fever, cough...)"
+                                   autocomplete="off">
+                            <div class="symptom-dropdown" id="symptomDropdown"></div>
+                        </div>
+
+                        <div class="selected-symptoms" id="selectedSymptoms">
+                            <!-- Chips appear here -->
+                        </div>
+                    </div>
+
+                    <!-- Voice input -->
+                    <div class="voice-row">
+                        <button class="btn btn-ghost voice-btn" id="voiceBtn" onclick="startVoiceRecognition()">
+                            <i data-lucide="mic" style="width:18px;height:18px"></i>
+                            Voice Input
+                        </button>
+                        <div class="voice-status" id="voiceStatus">Click the mic button to speak your symptoms</div>
+                    </div>
+
+                    <!-- Hidden form field for legacy support -->
+                    <input type="hidden" id="symptomsHidden" name="symptoms" value="">
+
+                    <!-- Predict button -->
+                    <button class="predict-btn" id="predictBtn" onclick="predictDisease()" disabled>
+                        <span class="btn-text">
+                            <i data-lucide="sparkles" style="width:20px;height:20px"></i>
+                            Analyze Symptoms
+                        </span>
+                    </button>
+
+                    <p style="text-align:center;font-size:0.75rem;color:var(--text-muted);margin-top:var(--space-md)">
+                        ⚕️ This is an AI-based tool for informational purposes only. Always consult a healthcare professional.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- RESULTS SECTION (dynamically shown)                           -->
+    <!-- ============================================================ -->
+    <section id="results-section" class="results-section" style="display:none">
+        <div class="container">
+            <div class="result-header">
+                <span class="badge badge-danger" style="margin-bottom:var(--space-sm)">Prediction Result</span>
+                <h2 class="disease-name" id="resultDiseaseName">—</h2>
+                <p style="color:var(--text-secondary);margin-top:var(--space-sm);font-size:0.9rem" id="resultMeta"></p>
+            </div>
+
+            <div class="result-metrics" id="resultMetrics">
+                <div class="card metric-card">
+                    <div class="metric-value" style="color:var(--primary-light)" id="metricConfidence">—</div>
+                    <div class="metric-label">Confidence</div>
+                </div>
+                <div class="card metric-card">
+                    <div class="metric-value" style="color:var(--warning-light)" id="metricSeverity">—</div>
+                    <div class="metric-label">Severity Score</div>
+                </div>
+                <div class="card metric-card">
+                    <div class="metric-value" style="color:var(--accent-light)" id="metricSymptoms">—</div>
+                    <div class="metric-label">Symptoms Analyzed</div>
+                </div>
+            </div>
+
+            <div class="result-tabs" id="resultTabs">
+                <button class="result-tab active" onclick="switchTab('desc', event)">
+                    <i data-lucide="file-text" style="width:14px;height:14px"></i> Description
+                </button>
+                <button class="result-tab" onclick="switchTab('precautions', event)">
+                    <i data-lucide="shield-alert" style="width:14px;height:14px"></i> Precautions
+                </button>
+                <button class="result-tab" onclick="switchTab('medications', event)">
+                    <i data-lucide="pill" style="width:14px;height:14px"></i> Medications
+                </button>
+                <button class="result-tab" onclick="switchTab('diets', event)">
+                    <i data-lucide="apple" style="width:14px;height:14px"></i> Diets
+                </button>
+                <button class="result-tab" onclick="switchTab('workouts', event)">
+                    <i data-lucide="dumbbell" style="width:14px;height:14px"></i> Workouts
+                </button>
+            </div>
+
+            <div id="panel-desc" class="result-panel active">
+                <div class="card">
+                    <h3>Disease Description</h3>
+                    <p id="resultDescription">—</p>
+                </div>
+            </div>
+            <div id="panel-precautions" class="result-panel">
+                <div class="card">
+                    <h3>Precautions</h3>
+                    <ul class="result-list" id="resultPrecautions"></ul>
+                </div>
+            </div>
+            <div id="panel-medications" class="result-panel">
+                <div class="card">
+                    <h3>Recommended Medications</h3>
+                    <ul class="result-list" id="resultMedications"></ul>
+                </div>
+            </div>
+            <div id="panel-diets" class="result-panel">
+                <div class="card">
+                    <h3>Recommended Diets</h3>
+                    <ul class="result-list" id="resultDiets"></ul>
+                </div>
+            </div>
+            <div id="panel-workouts" class="result-panel">
+                <div class="card">
+                    <h3>Recommended Workouts</h3>
+                    <ul class="result-list" id="resultWorkouts"></ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FEATURES SECTION                                               -->
+    <!-- ============================================================ -->
+    <section id="features" class="section">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="badge badge-accent" style="margin-bottom:var(--space-sm)">Features</span>
+                <h2 class="section-title">Why SymptomSense?</h2>
+                <p class="section-subtitle">Enterprise-grade health analysis powered by cutting-edge ML technology.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="card feature-card card-glow reveal">
+                    <div class="feature-icon" style="background:rgba(99,102,241,0.1);color:var(--primary-light)">
+                        <i data-lucide="brain" style="width:24px;height:24px"></i>
+                    </div>
+                    <div class="feature-title">ML-Powered Prediction</div>
+                    <div class="feature-desc">Support Vector Machine trained on 4,920+ medical cases with 95% accuracy across 41 diseases.</div>
+                </div>
+                <div class="card feature-card card-glow reveal" style="transition-delay:0.1s">
+                    <div class="feature-icon" style="background:rgba(6,182,212,0.1);color:var(--accent-light)">
+                        <i data-lucide="mic" style="width:24px;height:24px"></i>
+                    </div>
+                    <div class="feature-title">Voice Recognition</div>
+                    <div class="feature-desc">Speak your symptoms naturally using Web Speech API. No typing needed — just talk.</div>
+                </div>
+                <div class="card feature-card card-glow reveal" style="transition-delay:0.2s">
+                    <div class="feature-icon" style="background:rgba(16,185,129,0.1);color:var(--success-light)">
+                        <i data-lucide="shield-check" style="width:24px;height:24px"></i>
+                    </div>
+                    <div class="feature-title">Comprehensive Reports</div>
+                    <div class="feature-desc">Get disease descriptions, precautions, medications, diets, and workout plans — all in one place.</div>
+                </div>
+                <div class="card feature-card card-glow reveal" style="transition-delay:0.3s">
+                    <div class="feature-icon" style="background:rgba(245,158,11,0.1);color:var(--warning-light)">
+                        <i data-lucide="database" style="width:24px;height:24px"></i>
+                    </div>
+                    <div class="feature-title">MongoDB Integration</div>
+                    <div class="feature-desc">Secure data storage with MongoDB. Track your prediction history and manage your health records.</div>
+                </div>
+                <div class="card feature-card card-glow reveal" style="transition-delay:0.4s">
+                    <div class="feature-icon" style="background:rgba(239,68,68,0.1);color:var(--danger-light)">
+                        <i data-lucide="lock" style="width:24px;height:24px"></i>
+                    </div>
+                    <div class="feature-title">JWT Authentication</div>
+                    <div class="feature-desc">Secure login system with encrypted passwords and token-based authentication for data privacy.</div>
+                </div>
+                <div class="card feature-card card-glow reveal" style="transition-delay:0.5s">
+                    <div class="feature-icon" style="background:rgba(168,85,247,0.1);color:#c084fc">
+                        <i data-lucide="zap" style="width:24px;height:24px"></i>
+                    </div>
+                    <div class="feature-title">RESTful API</div>
+                    <div class="feature-desc">Full REST API with meta input/output format. Easy integration with any frontend or third-party service.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- CTA SECTION                                                    -->
+    <!-- ============================================================ -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-box reveal">
+                <h2>Ready to Analyze Your Health?</h2>
+                <p>Sign up for free and start using our AI-powered disease prediction system. Track your health history and get personalized recommendations.</p>
+                <a href="#predict-section" class="btn btn-primary btn-lg">
+                    <i data-lucide="arrow-right" style="width:18px;height:18px"></i>
+                    Get Started Free
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- FOOTER                                                         -->
+    <!-- ============================================================ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="nav-brand">
+                        <div class="brand-icon"><i data-lucide="heart-pulse" style="width:18px;height:18px"></i></div>
+                        <span>SymptomSense</span>
+                    </a>
+                    <p>Empowering individuals with AI-driven health insights for better well-being and informed healthcare decisions.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#hero">Home</a></li>
+                        <li><a href="#predict-section">Symptom Checker</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/about">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="/blog">Health Articles</a></li>
+                        <li><a href="/developer">API Docs</a></li>
+                        <li><a href="/developer">Developer</a></li>
+                        <li><a href="#">GitHub</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>API Endpoints</h4>
+                    <ul>
+                        <li><a href="/api/health" style="font-family:var(--font-mono);font-size:0.75rem">/api/health</a></li>
+                        <li><a href="/api/symptoms" style="font-family:var(--font-mono);font-size:0.75rem">/api/symptoms</a></li>
+                        <li><a href="/api/diseases" style="font-family:var(--font-mono);font-size:0.75rem">/api/diseases</a></li>
+                        <li><a href="#" style="font-family:var(--font-mono);font-size:0.75rem">/api/predict</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Health SymptomSense. All rights reserved. | Built with Flask + ML</p>
+                <div class="footer-socials">
+                    <a href="#" aria-label="GitHub"><i data-lucide="github" style="width:16px;height:16px"></i></a>
+                    <a href="#" aria-label="Twitter"><i data-lucide="twitter" style="width:16px;height:16px"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i data-lucide="linkedin" style="width:16px;height:16px"></i></a>
+                    <a href="/contact" aria-label="Email"><i data-lucide="mail" style="width:16px;height:16px"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</div><!-- /app-container -->
+
+
+<!-- ============================================================ -->
+<!-- AUTH MODAL                                                     -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="authModal">
+    <div class="modal-box" style="position:relative">
+        <button class="modal-close" onclick="closeAuthModal()">
+            <i data-lucide="x" style="width:16px;height:16px"></i>
+        </button>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+            <div class="modal-header-area">
+                <h2>Welcome Back 👋</h2>
+                <p>Log in to access your health dashboard</p>
+            </div>
+            <div class="modal-body-area">
+                <div class="form-error" id="loginError"></div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password">
+                </div>
+                <button class="btn btn-primary" style="width:100%;margin-top:var(--space-sm)" onclick="loginUser()">
+                    <i data-lucide="log-in" style="width:16px;height:16px"></i> Log In
+                </button>
+                <div class="form-divider"><span>or</span></div>
+                <div class="form-footer">
+                    Don't have an account? <a onclick="switchAuthForm('register')">Create one</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" style="display:none">
+            <div class="modal-header-area">
+                <h2>Create Account ✨</h2>
+                <p>Join SymptomSense for personalized health insights</p>
+            </div>
+            <div class="modal-body-area">
+                <div class="form-error" id="registerError"></div>
+                <div class="form-success" id="registerSuccess"></div>
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="registerName" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" id="registerEmail" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password (min 6 chars)</label>
+                    <input type="password" class="form-input" id="registerPassword" placeholder="Create a password">
+                </div>
+                <button class="btn btn-primary" style="width:100%;margin-top:var(--space-sm)" onclick="registerUser()">
+                    <i data-lucide="user-plus" style="width:16px;height:16px"></i> Create Account
+                </button>
+                <div class="form-divider"><span>or</span></div>
+                <div class="form-footer">
+                    Already have an account? <a onclick="switchAuthForm('login')">Log in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- JAVASCRIPT                                                     -->
+<!-- ============================================================ -->
+<script>
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+        loadSymptoms();
+        checkAuthState();
+        setupRevealObserver();
+        setupNavbarScroll();
+    });
+
+    // ============================================================
+    // STATE
+    // ============================================================
+    let allSymptoms = [];
+    let selectedSymptoms = [];
+    let currentUser = null;
+    let authToken = localStorage.getItem('auth_token') || null;
+
+    // ============================================================
+    // SYMPTOM LOADING
+    // ============================================================
+    async function loadSymptoms() {
+        try {
+            const res = await fetch('/api/symptoms');
+            const data = await res.json();
+            if (data.success) {
+                allSymptoms = data.symptoms;
+                document.getElementById('statSymptoms').textContent = data.total;
+            }
+        } catch (e) {
+            console.error('Failed to load symptoms:', e);
+            // Fallback: hardcoded count
+        }
+    }
+
+    // ============================================================
+    // SYMPTOM SEARCH & SELECT
+    // ============================================================
+    const searchInput = document.getElementById('symptomSearch');
+    const dropdown = document.getElementById('symptomDropdown');
+
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        if (query.length < 1) {
+            dropdown.classList.remove('show');
+            return;
+        }
+
+        const filtered = allSymptoms.filter(s =>
+            s.name.toLowerCase().includes(query) || s.key.includes(query)
+        ).slice(0, 15);
+
+        if (filtered.length === 0) {
+            dropdown.innerHTML = '<div style="padding:12px;color:var(--text-muted);font-size:0.85rem">No matching symptoms found</div>';
+        } else {
+            dropdown.innerHTML = filtered.map(s => {
+                const isSelected = selectedSymptoms.includes(s.key);
+                return `<div class="symptom-option ${isSelected ? 'selected' : ''}"
+                             onclick="toggleSymptom('${s.key}', '${s.name}')">
+                    <span>${s.name}</span>
+                    <span class="badge badge-${s.severity >= 5 ? 'danger' : s.severity >= 3 ? 'warning' : 'success'}"
+                          style="font-size:0.6rem">Sev: ${s.severity}</span>
+                </div>`;
+            }).join('');
+        }
+        dropdown.classList.add('show');
+    });
+
+    searchInput.addEventListener('focus', () => {
+        if (searchInput.value.trim().length > 0) {
+            searchInput.dispatchEvent(new Event('input'));
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.symptom-search-wrap')) {
+            dropdown.classList.remove('show');
+        }
+    });
+
+    function toggleSymptom(key, name) {
+        const idx = selectedSymptoms.indexOf(key);
+        if (idx > -1) {
+            selectedSymptoms.splice(idx, 1);
+        } else {
+            selectedSymptoms.push(key);
+        }
+        renderSelectedSymptoms();
+        updatePredictButton();
+        // Re-render dropdown
+        searchInput.dispatchEvent(new Event('input'));
+    }
+
+    function removeSymptom(key) {
+        selectedSymptoms = selectedSymptoms.filter(s => s !== key);
+        renderSelectedSymptoms();
+        updatePredictButton();
+    }
+
+    function renderSelectedSymptoms() {
+        const container = document.getElementById('selectedSymptoms');
+        if (selectedSymptoms.length === 0) {
+            container.innerHTML = '<span style="color:var(--text-muted);font-size:0.8rem">No symptoms selected yet</span>';
+            return;
+        }
+        container.innerHTML = selectedSymptoms.map(key => {
+            const symptom = allSymptoms.find(s => s.key === key);
+            const name = symptom ? symptom.name : key.replace(/_/g, ' ');
+            return `<span class="symptom-chip">
+                ${name}
+                <button class="remove-chip" onclick="removeSymptom('${key}')">&times;</button>
+            </span>`;
+        }).join('');
+    }
+
+    function updatePredictButton() {
+        const btn = document.getElementById('predictBtn');
+        btn.disabled = selectedSymptoms.length === 0;
+    }
+
+    // ============================================================
+    // VOICE RECOGNITION
+    // ============================================================
+    function startVoiceRecognition() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            showToast('Speech recognition not supported in this browser', 'error');
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+
+        const voiceBtn = document.getElementById('voiceBtn');
+        const voiceStatus = document.getElementById('voiceStatus');
+
+        voiceBtn.classList.add('listening');
+        voiceStatus.textContent = '🎙️ Listening...';
+
+        recognition.onresult = (event) => {
+            const text = event.results[0][0].transcript;
+            voiceStatus.textContent = '✅ ' + text;
+            voiceBtn.classList.remove('listening');
+
+            // Try to match spoken words to symptoms
+            const words = text.toLowerCase().split(/[\s,]+/);
+            let matched = 0;
+            allSymptoms.forEach(s => {
+                const sName = s.name.toLowerCase();
+                const sKey = s.key.toLowerCase();
+                if (words.some(w => sName.includes(w) || sKey.includes(w))) {
+                    if (!selectedSymptoms.includes(s.key)) {
+                        selectedSymptoms.push(s.key);
+                        matched++;
+                    }
+                }
+            });
+
+            renderSelectedSymptoms();
+            updatePredictButton();
+            if (matched > 0) {
+                showToast(`Matched ${matched} symptom(s) from voice input`, 'success');
+            } else {
+                showToast('No symptoms matched. Try speaking individual symptoms.', 'info');
+            }
+        };
+
+        recognition.onerror = (event) => {
+            voiceBtn.classList.remove('listening');
+            voiceStatus.textContent = '❌ Error: ' + event.error;
+        };
+
+        recognition.onend = () => {
+            voiceBtn.classList.remove('listening');
+        };
+
+        recognition.start();
+    }
+
+    // ============================================================
+    // DISEASE PREDICTION
+    // ============================================================
+    async function predictDisease() {
+        if (selectedSymptoms.length === 0) {
+            showToast('Please select at least one symptom', 'error');
+            return;
+        }
+
+        showLoading(true);
+
+        try {
+            const headers = { 'Content-Type': 'application/json' };
+            if (authToken) {
+                headers['Authorization'] = 'Bearer ' + authToken;
+            }
+
+            const res = await fetch('/api/predict', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({
+                    symptoms: selectedSymptoms,
+                    patient_info: {
+                        timestamp: new Date().toISOString()
+                    }
+                })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                displayResults(data);
+                showToast('Disease prediction completed successfully!', 'success');
+            } else {
+                showToast(data.error || 'Prediction failed', 'error');
+            }
+        } catch (e) {
+            console.error('Prediction error:', e);
+            showToast('Network error. Please check your connection.', 'error');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function displayResults(data) {
+        const pred = data.prediction;
+        const meta = data.meta;
+
+        // Show section
+        document.getElementById('results-section').style.display = 'block';
+
+        // Header
+        document.getElementById('resultDiseaseName').textContent = pred.disease;
+        document.getElementById('resultMeta').textContent =
+            `Analyzed ${meta.symptoms_analyzed} symptoms using ${meta.model} | ${new Date(meta.timestamp).toLocaleString()}`;
+
+        // Metrics
+        document.getElementById('metricConfidence').textContent = pred.confidence + '%';
+        document.getElementById('metricSeverity').textContent = pred.severity_score;
+        document.getElementById('metricSymptoms').textContent = meta.symptoms_analyzed;
+
+        // Description
+        document.getElementById('resultDescription').textContent = pred.description || 'No description available.';
+
+        // Lists
+        renderResultList('resultPrecautions', pred.precautions, 'shield-alert', 'rgba(245,158,11,0.1)', 'var(--warning-light)');
+        renderResultList('resultMedications', pred.medications, 'pill', 'rgba(99,102,241,0.1)', 'var(--primary-light)');
+        renderResultList('resultDiets', pred.diets, 'apple', 'rgba(16,185,129,0.1)', 'var(--success-light)');
+        renderResultList('resultWorkouts', pred.workouts, 'dumbbell', 'rgba(6,182,212,0.1)', 'var(--accent-light)');
+
+        // Reset to first tab
+        switchTab('desc');
+
+        // Scroll to results
+        setTimeout(() => {
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
+
+        // Re-init icons
+        lucide.createIcons();
+    }
+
+    function renderResultList(containerId, items, icon, bgColor, iconColor) {
+        const container = document.getElementById(containerId);
+        if (!items || items.length === 0) {
+            container.innerHTML = '<li style="color:var(--text-muted)">No data available</li>';
+            return;
+        }
+        container.innerHTML = items.map(item => `
+            <li>
+                <span class="list-icon" style="background:${bgColor};color:${iconColor}">
+                    <i data-lucide="${icon}" style="width:14px;height:14px"></i>
+                </span>
+                <span>${item}</span>
+            </li>
+        `).join('');
+    }
+
+    function switchTab(tabId, e) {
+        // Update tab buttons
+        document.querySelectorAll('.result-tab').forEach(btn => btn.classList.remove('active'));
+        // Find the clicked tab - use event if available, otherwise find by tabId
+        const evt = e || window.event;
+        if (evt && evt.target) {
+            const clickedTab = evt.target.closest('.result-tab');
+            if (clickedTab) clickedTab.classList.add('active');
+        } else {
+            // Fallback: find tab by matching tabId in onclick
+            document.querySelectorAll('.result-tab').forEach(btn => {
+                if (btn.getAttribute('onclick')?.includes("'" + tabId + "'")) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Update panels
+        document.querySelectorAll('.result-panel').forEach(panel => panel.classList.remove('active'));
+        document.getElementById('panel-' + tabId).classList.add('active');
+    }
+
+    // ============================================================
+    // AUTHENTICATION
+    // ============================================================
+    function openAuthModal(mode) {
+        document.getElementById('authModal').classList.add('show');
+        switchAuthForm(mode);
+    }
+
+    function closeAuthModal() {
+        document.getElementById('authModal').classList.remove('show');
+        clearAuthForms();
+    }
+
+    function switchAuthForm(mode) {
+        document.getElementById('loginForm').style.display = mode === 'login' ? 'block' : 'none';
+        document.getElementById('registerForm').style.display = mode === 'register' ? 'block' : 'none';
+        clearAuthForms();
+    }
+
+    function clearAuthForms() {
+        ['loginError', 'registerError', 'registerSuccess'].forEach(id => {
+            const el = document.getElementById(id);
+            el.classList.remove('show');
+            el.textContent = '';
+        });
+    }
+
+    async function registerUser() {
+        const name = document.getElementById('registerName').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
+        const password = document.getElementById('registerPassword').value;
+
+        if (!name || !email || !password) {
+            showFormError('registerError', 'All fields are required');
+            return;
+        }
+        if (password.length < 6) {
+            showFormError('registerError', 'Password must be at least 6 characters');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                authToken = data.token;
+                localStorage.setItem('auth_token', authToken);
+                currentUser = data.user;
+                updateUIForAuth();
+                closeAuthModal();
+                showToast(`Welcome, ${data.user.name}! 🎉`, 'success');
+            } else {
+                showFormError('registerError', data.error);
+            }
+        } catch (e) {
+            showFormError('registerError', 'Network error. Please try again.');
+        }
+    }
+
+    async function loginUser() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        if (!email || !password) {
+            showFormError('loginError', 'All fields are required');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                authToken = data.token;
+                localStorage.setItem('auth_token', authToken);
+                currentUser = data.user;
+                updateUIForAuth();
+                closeAuthModal();
+                showToast(`Welcome back, ${data.user.name}!`, 'success');
+            } else {
+                showFormError('loginError', data.error);
+            }
+        } catch (e) {
+            showFormError('loginError', 'Network error. Please try again.');
+        }
+    }
+
+    async function logoutUser() {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' });
+        } catch(e) {}
+        authToken = null;
+        currentUser = null;
+        localStorage.removeItem('auth_token');
+        updateUIForAuth();
+        showToast('Logged out successfully', 'info');
+    }
+
+    function checkAuthState() {
+        if (authToken) {
+            fetch('/api/auth/me', {
+                headers: { 'Authorization': 'Bearer ' + authToken }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    currentUser = data.user;
+                    updateUIForAuth();
+                } else {
+                    authToken = null;
+                    localStorage.removeItem('auth_token');
+                    updateUIForAuth();
+                }
+            })
+            .catch(() => {
+                // Token might be valid but API not reachable yet
+                updateUIForAuth();
+            });
+        }
+    }
+
+    function updateUIForAuth() {
+        const authBtns = document.getElementById('authButtons');
+        const userMenu = document.getElementById('userMenuArea');
+
+        if (authToken && currentUser) {
+            authBtns.style.display = 'none';
+            userMenu.style.display = 'block';
+            document.getElementById('userAvatar').textContent = currentUser.avatar || currentUser.name[0].toUpperCase();
+            document.getElementById('dropdownName').textContent = currentUser.name;
+            document.getElementById('dropdownEmail').textContent = currentUser.email;
+        } else {
+            authBtns.style.display = 'flex';
+            userMenu.style.display = 'none';
+        }
+        lucide.createIcons();
+    }
+
+    function toggleUserMenu() {
+        document.getElementById('userDropdown').classList.toggle('show');
+    }
+
+    // Close user dropdown on outside click
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.user-menu-wrap')) {
+            document.getElementById('userDropdown')?.classList.remove('show');
+        }
+    });
+
+    function showFormError(id, message) {
+        const el = document.getElementById(id);
+        el.textContent = message;
+        el.classList.add('show');
+    }
+
+    // ============================================================
+    // HISTORY
+    // ============================================================
+    async function viewHistory(e) {
+        e.preventDefault();
+        if (!authToken) {
+            openAuthModal('login');
+            return;
+        }
+        try {
+            const res = await fetch('/api/predictions/history', {
+                headers: { 'Authorization': 'Bearer ' + authToken }
+            });
+            const data = await res.json();
+            if (data.success && data.history.length > 0) {
+                showToast(`You have ${data.total} prediction(s) in history`, 'info');
+            } else {
+                showToast('No prediction history yet. Make your first prediction!', 'info');
+            }
+        } catch(e) {
+            showToast('Could not load history', 'error');
+        }
+    }
+
+    // ============================================================
+    // LOADING
+    // ============================================================
+    function showLoading(show) {
+        const overlay = document.getElementById('loadingOverlay');
+        if (show) {
+            overlay.classList.add('show');
+            const messages = [
+                'Analyzing symptoms with AI...',
+                'Running SVM classification...',
+                'Matching disease patterns...',
+                'Generating recommendations...',
+                'Preparing your health report...'
+            ];
+            let i = 0;
+            const interval = setInterval(() => {
+                i = (i + 1) % messages.length;
+                document.getElementById('loadingText').textContent = messages[i];
+            }, 800);
+            overlay.dataset.interval = interval;
+        } else {
+            if (overlay.dataset.interval) clearInterval(overlay.dataset.interval);
+            overlay.classList.remove('show');
+        }
+    }
+
+    // ============================================================
+    // TOAST NOTIFICATIONS
+    // ============================================================
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+        toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
+    // ============================================================
+    // NAVBAR SCROLL EFFECT
+    // ============================================================
+    function setupNavbarScroll() {
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    }
+
+    // ============================================================
+    // INTERSECTION OBSERVER (Reveal on Scroll)
+    // ============================================================
+    function setupRevealObserver() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+
+    // ============================================================
+    // MOBILE MENU
+    // ============================================================
+    function toggleMobileMenu() {
+        document.getElementById('mobileMenu').classList.toggle('open');
+    }
+    function closeMobileMenu() {
+        document.getElementById('mobileMenu').classList.remove('open');
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const target = this.getAttribute('href');
+            if (target !== '#') {
+                e.preventDefault();
+                const el = document.querySelector(target);
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+
+    // Close auth modal on overlay click
+    document.getElementById('authModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeAuthModal();
+    });
+
+    // ESC to close modals
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeAuthModal();
+            document.getElementById('userDropdown')?.classList.remove('show');
+        }
+    });
+</script>
+</body>
+</html>

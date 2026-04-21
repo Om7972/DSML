@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Health SymptomSense</title>
+    <meta name="description" content="Learn about Health SymptomSense - an AI-powered medical recommendation system using machine learning.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #6366f1; --primary-light: #818cf8; --primary-dark: #4f46e5;
+            --primary-glow: rgba(99, 102, 241, 0.3);
+            --accent: #06b6d4; --accent-light: #22d3ee;
+            --success: #10b981; --success-light: #34d399;
+            --bg-primary: #0f0f23; --bg-secondary: #1a1a3e;
+            --bg-card: rgba(26, 26, 62, 0.7); --bg-glass: rgba(255, 255, 255, 0.05);
+            --text-primary: #f1f5f9; --text-secondary: #94a3b8; --text-muted: #64748b;
+            --border-default: rgba(255, 255, 255, 0.08); --border-hover: rgba(255, 255, 255, 0.15);
+            --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px;
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        .bg-mesh { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        .bg-mesh::before { content: ''; position: absolute; width: 500px; height: 500px; background: radial-gradient(circle, var(--primary-glow), transparent 70%); top: -10%; left: -5%; border-radius: 50%; filter: blur(120px); animation: float 20s ease-in-out infinite; }
+        .bg-mesh::after { content: ''; position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(6,182,212,0.12), transparent 70%); bottom: -10%; right: -5%; border-radius: 50%; filter: blur(120px); animation: float 20s ease-in-out infinite reverse; }
+        @keyframes float { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-40px)} }
+        .bg-grid { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-image: linear-gradient(var(--border-default) 1px, transparent 1px), linear-gradient(90deg, var(--border-default) 1px, transparent 1px); background-size: 60px 60px; opacity: 0.3; }
+        .app-wrap { position: relative; z-index: 1; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; }
+
+        /* Navbar */
+        .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; backdrop-filter: blur(20px); background: rgba(15,15,35,0.85); border-bottom: 1px solid var(--border-default); }
+        .navbar-inner { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; max-width: 1200px; margin: 0 auto; }
+        .nav-brand { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--text-primary); font-weight: 800; font-size: 1.15rem; }
+        .brand-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: white; }
+        .nav-links { display: flex; gap: 0.25rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: 0.85rem; font-weight: 500; padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); transition: var(--transition-base); }
+        .nav-links a:hover, .nav-links a.active { color: var(--text-primary); background: var(--bg-glass); }
+        .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
+        .badge-accent { background: rgba(6,182,212,0.15); color: var(--accent-light); }
+
+        /* Card */
+        .card { background: var(--bg-card); backdrop-filter: blur(16px); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 2rem; transition: var(--transition-base); margin-bottom: 1.5rem; }
+        .card:hover { border-color: var(--border-hover); box-shadow: 0 4px 12px rgba(0,0,0,0.4); transform: translateY(-2px); }
+
+        /* Hero */
+        .page-hero { padding: 120px 0 40px; text-align: center; }
+        .page-hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; margin-bottom: 1rem; }
+        .page-hero .gradient-text { background: linear-gradient(135deg, var(--primary-light), var(--accent-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .page-hero p { color: var(--text-secondary); font-size: 1.05rem; max-width: 600px; margin: 0 auto; }
+
+        /* Content */
+        .content-section { padding: 40px 0 80px; }
+        .card h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.75rem; }
+        .card h2 .icon-wrap { width: 40px; height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .card p { color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem; }
+
+        /* CTA */
+        .cta-card { text-align: center; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.05)); }
+        .cta-card h2 { justify-content: center; font-size: 1.5rem; }
+        .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 12px 24px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.9rem; text-decoration: none; cursor: pointer; border: none; transition: var(--transition-base); font-family: 'Inter', sans-serif; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: 0 2px 12px var(--primary-glow); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 20px var(--primary-glow); }
+
+        /* Footer */
+        .footer { background: rgba(10,10,25,0.8); border-top: 1px solid var(--border-default); padding: 2rem 0; text-align: center; }
+        .footer p { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 768px) { .nav-links { display: none; } }
+    </style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="bg-grid"></div>
+<div class="app-wrap">
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="nav-brand">
+                <div class="brand-icon"><i data-lucide="heart-pulse" style="width:20px;height:20px"></i></div>
+                <span>SymptomSense</span>
+                <span class="badge badge-accent" style="margin-left:4px">AI</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/#predict-section">Predict</a></li>
+                <li><a href="/about" class="active">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+                <li><a href="/developer">Developer</a></li>
+                <li><a href="/blog">Blog</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="page-hero">
+        <div class="container">
+            <h1>About <span class="gradient-text">SymptomSense</span></h1>
+            <p>Where health meets technology for a brighter, healthier future powered by Machine Learning.</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <div class="card reveal">
+                <h2><span class="icon-wrap" style="background:rgba(99,102,241,0.1);color:var(--primary-light)"><i data-lucide="eye" style="width:20px;height:20px"></i></span> Our Vision</h2>
+                <p>We envision a world where access to healthcare information is not just a luxury but a fundamental right. Our journey began with a simple yet powerful idea: to empower individuals with the knowledge and tools they need to take control of their health. By leveraging cutting-edge machine learning, we make preliminary health assessment accessible to everyone.</p>
+            </div>
+
+            <div class="card reveal">
+                <h2><span class="icon-wrap" style="background:rgba(6,182,212,0.1);color:var(--accent-light)"><i data-lucide="users" style="width:20px;height:20px"></i></span> Who We Are</h2>
+                <p>We are a passionate team of healthcare professionals, data scientists, and technology enthusiasts who share a common goal: to make healthcare accessible, understandable, and personalized for you. With years of experience in both healthcare and cutting-edge technology, we've come together to create this platform as a testament to our commitment to your well-being.</p>
+            </div>
+
+            <div class="card reveal">
+                <h2><span class="icon-wrap" style="background:rgba(16,185,129,0.1);color:var(--success-light)"><i data-lucide="zap" style="width:20px;height:20px"></i></span> Our Mission</h2>
+                <p>At Health SymptomSense, our mission is to provide you with a seamless and intuitive platform that leverages the power of artificial intelligence and machine learning. We want to assist you in identifying potential health concerns based on your reported symptoms, all while offering a wealth of educational resources to enhance your health literacy.</p>
+            </div>
+
+            <div class="card reveal">
+                <h2><span class="icon-wrap" style="background:rgba(245,158,11,0.1);color:#fbbf24"><i data-lucide="cpu" style="width:20px;height:20px"></i></span> How We Do It</h2>
+                <p>Our platform utilizes a robust SVM (Support Vector Machine) classification model trained on a dataset of 4,920 medical records spanning 41 diseases and 132 symptoms. By selecting your symptoms, our system generates accurate predictions about potential illnesses, providing detailed recommendations for medications, diets, workouts, and precautions.</p>
+            </div>
+
+            <div class="card reveal">
+                <h2><span class="icon-wrap" style="background:rgba(239,68,68,0.1);color:#f87171"><i data-lucide="shield-check" style="width:20px;height:20px"></i></span> Your Well-being, Our Priority</h2>
+                <p>Your health is our top priority. We understand that navigating the complexities of healthcare can be daunting. That's why we've gone the extra mile to provide not only accurate predictions but also comprehensive information about each disease. You'll find descriptions, recommended precautions, medications, dietary advice, and workout tips to support your journey to better health.</p>
+            </div>
+
+            <div class="card cta-card reveal">
+                <h2>Join Us on This Journey</h2>
+                <p style="max-width:600px;margin:0 auto 1.5rem">We invite you to explore our platform, engage with our educational content, and take control of your health journey. Together, we can revolutionize the way individuals access and understand healthcare information.</p>
+                <a href="/" class="btn btn-primary"><i data-lucide="arrow-right" style="width:16px;height:16px"></i> Start Using SymptomSense</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Health SymptomSense. All rights reserved. | Built with Flask + ML</p>
+        </div>
+    </footer>
+</div>
+<script>
+    lucide.createIcons();
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
