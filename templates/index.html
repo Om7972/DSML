@@ -13,6 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Chart.js for Health Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <style>
         /* ============================================================ */
@@ -806,6 +808,105 @@
             font-size: 0.75rem;
         }
 
+        /* Triage Banner */
+        .triage-banner {
+            display: flex; align-items: flex-start; gap: var(--space-md);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-xl);
+            border: 1px solid var(--border-default);
+            animation: slideUp 0.4s ease-out;
+        }
+        .triage-banner.URGENT { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); }
+        .triage-banner.MODERATE { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); }
+        .triage-banner.ROUTINE { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.3); }
+        .triage-icon {
+            width: 44px; height: 44px; border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .triage-banner.URGENT .triage-icon { background: rgba(239,68,68,0.2); color: var(--danger-light); }
+        .triage-banner.MODERATE .triage-icon { background: rgba(245,158,11,0.2); color: var(--warning-light); }
+        .triage-banner.ROUTINE .triage-icon { background: rgba(16,185,129,0.2); color: var(--success-light); }
+        .triage-level { font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+        .triage-action { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+        .triage-reasons { font-size: 0.8rem; color: var(--text-secondary); }
+
+        /* Differential Diagnosis */
+        .diff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+        .diff-card {
+            padding: var(--space-lg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-default);
+            background: var(--bg-glass);
+            transition: var(--transition-base);
+        }
+        .diff-card.primary { border-color: var(--primary); background: rgba(99,102,241,0.08); }
+        .diff-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+        .diff-rank { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .diff-disease { font-size: 0.95rem; font-weight: 700; margin: 4px 0; }
+        .diff-confidence { font-size: 1.4rem; font-weight: 800; color: var(--primary-light); }
+        .diff-bar { height: 4px; background: var(--border-default); border-radius: var(--radius-full); margin-top: 8px; overflow: hidden; }
+        .diff-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: var(--radius-full); }
+
+        /* Related Symptoms */
+        .related-symptoms-wrap { margin-top: var(--space-md); display: none; }
+        .related-symptoms-wrap.show { display: block; }
+        .related-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 6px; }
+        .related-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .related-chip {
+            padding: 6px 12px; font-size: 0.75rem;
+            background: rgba(6,182,212,0.1); border: 1px dashed rgba(6,182,212,0.3);
+            border-radius: var(--radius-full); color: var(--accent-light);
+            cursor: pointer; transition: var(--transition-fast);
+        }
+        .related-chip:hover { background: rgba(6,182,212,0.2); transform: scale(1.03); }
+
+        /* Result Actions */
+        .result-actions {
+            display: flex; flex-wrap: wrap; gap: var(--space-sm);
+            justify-content: center; margin-bottom: var(--space-xl);
+        }
+
+        /* Dashboard Modal */
+        .dashboard-modal .modal-box { max-width: 900px; max-height: 90vh; overflow-y: auto; }
+        .dashboard-stats {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--space-md); margin-bottom: var(--space-xl);
+        }
+        .dash-stat {
+            text-align: center; padding: var(--space-md);
+            background: var(--bg-glass); border-radius: var(--radius-md);
+            border: 1px solid var(--border-default);
+        }
+        .dash-stat-value { font-size: 1.5rem; font-weight: 800; color: var(--primary-light); }
+        .dash-stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+        .chart-wrap {
+            background: var(--bg-glass); border: 1px solid var(--border-default);
+            border-radius: var(--radius-md); padding: var(--space-lg); margin-bottom: var(--space-lg);
+        }
+        .chart-wrap h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: var(--space-md); color: var(--text-secondary); }
+        .history-list { display: flex; flex-direction: column; gap: var(--space-sm); }
+        .history-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: var(--space-md); background: var(--bg-glass);
+            border: 1px solid var(--border-default); border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+        }
+        .history-item .disease { font-weight: 600; }
+        .history-item .meta { color: var(--text-muted); font-size: 0.75rem; }
+        .triage-badge {
+            font-size: 0.6rem; font-weight: 700; padding: 2px 8px;
+            border-radius: var(--radius-full); text-transform: uppercase;
+        }
+        .triage-badge.URGENT { background: rgba(239,68,68,0.2); color: var(--danger-light); }
+        .triage-badge.MODERATE { background: rgba(245,158,11,0.2); color: var(--warning-light); }
+        .triage-badge.ROUTINE { background: rgba(16,185,129,0.2); color: var(--success-light); }
+
         /* ============================================================ */
         /* AUTH MODAL                                                    */
         /* ============================================================ */
@@ -1204,6 +1305,7 @@
                                 <div class="user-email" id="dropdownEmail">user@email.com</div>
                             </div>
                             <a href="#predict-section"><i data-lucide="activity" style="width:16px;height:16px"></i> New Prediction</a>
+                            <a href="#" onclick="openHealthDashboard(event)"><i data-lucide="bar-chart-3" style="width:16px;height:16px"></i> Health Dashboard</a>
                             <a href="#" onclick="viewHistory(event)"><i data-lucide="clock" style="width:16px;height:16px"></i> Prediction History</a>
                             <button class="logout-btn" onclick="logoutUser()"><i data-lucide="log-out" style="width:16px;height:16px"></i> Sign Out</button>
                         </div>
@@ -1239,7 +1341,7 @@
             <div class="hero-badge">
                 <span class="dot"></span>
                 <span>Powered by Machine Learning</span>
-                <span class="badge badge-success">v2.0</span>
+                <span class="badge badge-success">v3.0</span>
             </div>
 
             <h1 class="hero-title">
@@ -1366,6 +1468,15 @@
                         <div class="voice-status" id="voiceStatus">Click the mic button to speak your symptoms</div>
                     </div>
 
+                    <!-- Related symptom suggestions -->
+                    <div class="related-symptoms-wrap" id="relatedSymptomsWrap">
+                        <div class="related-label">
+                            <i data-lucide="lightbulb" style="width:14px;height:14px"></i>
+                            Frequently co-occurring symptoms — click to add
+                        </div>
+                        <div class="related-chips" id="relatedSymptomsChips"></div>
+                    </div>
+
                     <!-- Hidden form field for legacy support -->
                     <input type="hidden" id="symptomsHidden" name="symptoms" value="">
 
@@ -1390,10 +1501,29 @@
     <!-- ============================================================ -->
     <section id="results-section" class="results-section" style="display:none">
         <div class="container">
+            <!-- Smart Triage Banner -->
+            <div class="triage-banner ROUTINE" id="triageBanner">
+                <div class="triage-icon"><i data-lucide="check-circle" style="width:22px;height:22px"></i></div>
+                <div>
+                    <div class="triage-level" id="triageLevel">ROUTINE</div>
+                    <div class="triage-action" id="triageAction">Monitor symptoms and follow recommended precautions</div>
+                    <div class="triage-reasons" id="triageReasons"></div>
+                </div>
+            </div>
+
             <div class="result-header">
                 <span class="badge badge-danger" style="margin-bottom:var(--space-sm)">Prediction Result</span>
                 <h2 class="disease-name" id="resultDiseaseName">—</h2>
                 <p style="color:var(--text-secondary);margin-top:var(--space-sm);font-size:0.9rem" id="resultMeta"></p>
+            </div>
+
+            <div class="result-actions">
+                <button class="btn btn-primary btn-sm" onclick="downloadPdfReport()">
+                    <i data-lucide="download" style="width:14px;height:14px"></i> Download PDF Report
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="document.getElementById('predict-section').scrollIntoView({behavior:'smooth'})">
+                    <i data-lucide="refresh-cw" style="width:14px;height:14px"></i> New Analysis
+                </button>
             </div>
 
             <div class="result-metrics" id="resultMetrics">
@@ -1409,6 +1539,15 @@
                     <div class="metric-value" style="color:var(--accent-light)" id="metricSymptoms">—</div>
                     <div class="metric-label">Symptoms Analyzed</div>
                 </div>
+            </div>
+
+            <!-- Differential Diagnosis -->
+            <div style="margin-bottom:var(--space-xl)">
+                <h3 style="font-size:1rem;font-weight:700;margin-bottom:var(--space-md);display:flex;align-items:center;gap:8px">
+                    <i data-lucide="git-branch" style="width:18px;height:18px;color:var(--accent-light)"></i>
+                    Differential Diagnosis (Top 3)
+                </h3>
+                <div class="diff-grid" id="differentialGrid"></div>
             </div>
 
             <div class="result-tabs" id="resultTabs">
@@ -1593,6 +1732,41 @@
 
 
 <!-- ============================================================ -->
+<!-- HEALTH DASHBOARD MODAL                                         -->
+<!-- ============================================================ -->
+<div class="modal-overlay dashboard-modal" id="dashboardModal">
+    <div class="modal-box" style="position:relative">
+        <button class="modal-close" onclick="closeHealthDashboard()">
+            <i data-lucide="x" style="width:16px;height:16px"></i>
+        </button>
+        <div class="modal-header-area">
+            <h2>📊 Health Dashboard</h2>
+            <p>Longitudinal health insights from your prediction history</p>
+        </div>
+        <div class="modal-body-area">
+            <div class="dashboard-stats" id="dashboardStats">
+                <div class="dash-stat"><div class="dash-stat-value" id="dashTotal">0</div><div class="dash-stat-label">Predictions</div></div>
+                <div class="dash-stat"><div class="dash-stat-value" id="dashAvgConf">0%</div><div class="dash-stat-label">Avg Confidence</div></div>
+                <div class="dash-stat"><div class="dash-stat-value" id="dashAvgSev">0</div><div class="dash-stat-label">Avg Severity</div></div>
+                <div class="dash-stat"><div class="dash-stat-value" id="dashUrgent">0</div><div class="dash-stat-label">Urgent Cases</div></div>
+            </div>
+            <div class="chart-wrap">
+                <h4>Severity Trend (Last 14 Days)</h4>
+                <canvas id="severityChart" height="120"></canvas>
+            </div>
+            <div class="chart-wrap">
+                <h4>Most Common Diseases</h4>
+                <canvas id="diseaseChart" height="120"></canvas>
+            </div>
+            <div class="chart-wrap">
+                <h4>Recent Predictions</h4>
+                <div class="history-list" id="dashboardHistory"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
 <!-- AUTH MODAL                                                     -->
 <!-- ============================================================ -->
 <div class="modal-overlay" id="authModal">
@@ -1683,6 +1857,9 @@
     let selectedSymptoms = [];
     let currentUser = null;
     let authToken = localStorage.getItem('auth_token') || null;
+    let lastPredictionResult = null;
+    let severityChartInstance = null;
+    let diseaseChartInstance = null;
 
     // ============================================================
     // SYMPTOM LOADING
@@ -1755,6 +1932,7 @@
         }
         renderSelectedSymptoms();
         updatePredictButton();
+        fetchRelatedSymptoms();
         // Re-render dropdown
         searchInput.dispatchEvent(new Event('input'));
     }
@@ -1763,6 +1941,7 @@
         selectedSymptoms = selectedSymptoms.filter(s => s !== key);
         renderSelectedSymptoms();
         updatePredictButton();
+        fetchRelatedSymptoms();
     }
 
     function renderSelectedSymptoms() {
@@ -1784,6 +1963,52 @@
     function updatePredictButton() {
         const btn = document.getElementById('predictBtn');
         btn.disabled = selectedSymptoms.length === 0;
+    }
+
+    // ============================================================
+    // RELATED SYMPTOM SUGGESTIONS
+    // ============================================================
+    let relatedDebounce = null;
+    async function fetchRelatedSymptoms() {
+        if (selectedSymptoms.length === 0) {
+            document.getElementById('relatedSymptomsWrap').classList.remove('show');
+            return;
+        }
+        clearTimeout(relatedDebounce);
+        relatedDebounce = setTimeout(async () => {
+            try {
+                const res = await fetch('/api/symptoms/related', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symptoms: selectedSymptoms })
+                });
+                const data = await res.json();
+                if (data.success && data.related_symptoms.length > 0) {
+                    const wrap = document.getElementById('relatedSymptomsWrap');
+                    const chips = document.getElementById('relatedSymptomsChips');
+                    chips.innerHTML = data.related_symptoms.map(s =>
+                        `<span class="related-chip" onclick="addRelatedSymptom('${s.key}', '${s.name}')"
+                               title="${s.co_occurrence_rate}% co-occurrence">
+                            + ${s.name} <small style="opacity:0.6">(${s.co_occurrence_rate}%)</small>
+                        </span>`
+                    ).join('');
+                    wrap.classList.add('show');
+                    lucide.createIcons();
+                } else {
+                    document.getElementById('relatedSymptomsWrap').classList.remove('show');
+                }
+            } catch (e) { /* silent */ }
+        }, 400);
+    }
+
+    function addRelatedSymptom(key, name) {
+        if (!selectedSymptoms.includes(key)) {
+            selectedSymptoms.push(key);
+            renderSelectedSymptoms();
+            updatePredictButton();
+            fetchRelatedSymptoms();
+            showToast(`Added "${name}" to symptoms`, 'success');
+        }
     }
 
     // ============================================================
@@ -1877,6 +2102,7 @@
             const data = await res.json();
 
             if (data.success) {
+                lastPredictionResult = data;
                 displayResults(data);
                 showToast('Disease prediction completed successfully!', 'success');
             } else {
@@ -1893,39 +2119,77 @@
     function displayResults(data) {
         const pred = data.prediction;
         const meta = data.meta;
+        const triage = data.triage || {};
+        const differential = data.differential_diagnosis || [];
 
-        // Show section
         document.getElementById('results-section').style.display = 'block';
 
-        // Header
+        // Triage banner
+        const banner = document.getElementById('triageBanner');
+        banner.className = 'triage-banner ' + (triage.level || 'ROUTINE');
+        document.getElementById('triageLevel').textContent = triage.level || 'ROUTINE';
+        document.getElementById('triageAction').textContent = triage.action || '';
+        document.getElementById('triageReasons').textContent = (triage.reasons || []).join(' • ');
+        const iconMap = { URGENT: 'alert-triangle', MODERATE: 'clock', ROUTINE: 'check-circle' };
+        banner.querySelector('.triage-icon').innerHTML =
+            `<i data-lucide="${iconMap[triage.level] || 'info'}" style="width:22px;height:22px"></i>`;
+
         document.getElementById('resultDiseaseName').textContent = pred.disease;
         document.getElementById('resultMeta').textContent =
             `Analyzed ${meta.symptoms_analyzed} symptoms using ${meta.model} | ${new Date(meta.timestamp).toLocaleString()}`;
 
-        // Metrics
         document.getElementById('metricConfidence').textContent = pred.confidence + '%';
         document.getElementById('metricSeverity').textContent = pred.severity_score;
         document.getElementById('metricSymptoms').textContent = meta.symptoms_analyzed;
 
-        // Description
-        document.getElementById('resultDescription').textContent = pred.description || 'No description available.';
+        // Differential diagnosis cards
+        const diffGrid = document.getElementById('differentialGrid');
+        diffGrid.innerHTML = differential.map((d, i) => `
+            <div class="diff-card ${i === 0 ? 'primary' : ''}">
+                <div class="diff-rank">${i === 0 ? 'Primary' : 'Alternative #' + d.rank}</div>
+                <div class="diff-disease">${d.disease}</div>
+                <div class="diff-confidence">${d.confidence}%</div>
+                <div class="diff-bar"><div class="diff-bar-fill" style="width:${d.confidence}%"></div></div>
+            </div>
+        `).join('');
 
-        // Lists
+        document.getElementById('resultDescription').textContent = pred.description || 'No description available.';
         renderResultList('resultPrecautions', pred.precautions, 'shield-alert', 'rgba(245,158,11,0.1)', 'var(--warning-light)');
         renderResultList('resultMedications', pred.medications, 'pill', 'rgba(99,102,241,0.1)', 'var(--primary-light)');
         renderResultList('resultDiets', pred.diets, 'apple', 'rgba(16,185,129,0.1)', 'var(--success-light)');
         renderResultList('resultWorkouts', pred.workouts, 'dumbbell', 'rgba(6,182,212,0.1)', 'var(--accent-light)');
 
-        // Reset to first tab
         switchTab('desc');
-
-        // Scroll to results
         setTimeout(() => {
             document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 200);
-
-        // Re-init icons
         lucide.createIcons();
+    }
+
+    async function downloadPdfReport() {
+        if (!lastPredictionResult) {
+            showToast('No prediction to export', 'error');
+            return;
+        }
+        try {
+            showToast('Generating PDF report...', 'info');
+            const res = await fetch('/api/report/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(lastPredictionResult)
+            });
+            if (!res.ok) throw new Error('Report generation failed');
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `health_report_${new Date().toISOString().slice(0,10)}.pdf`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('PDF report downloaded!', 'success');
+        } catch (e) {
+            showToast('Failed to generate PDF report', 'error');
+        }
     }
 
     function renderResultList(containerId, items, icon, bgColor, iconColor) {
@@ -2131,26 +2395,118 @@
     }
 
     // ============================================================
-    // HISTORY
+    // HISTORY & HEALTH DASHBOARD
     // ============================================================
     async function viewHistory(e) {
         e.preventDefault();
+        openHealthDashboard(e);
+    }
+
+    async function openHealthDashboard(e) {
+        if (e) e.preventDefault();
         if (!authToken) {
             openAuthModal('login');
             return;
         }
+        document.getElementById('dashboardModal').classList.add('show');
         try {
-            const res = await fetch('/api/predictions/history', {
-                headers: { 'Authorization': 'Bearer ' + authToken }
-            });
-            const data = await res.json();
-            if (data.success && data.history.length > 0) {
-                showToast(`You have ${data.total} prediction(s) in history`, 'info');
-            } else {
-                showToast('No prediction history yet. Make your first prediction!', 'info');
+            const headers = { 'Authorization': 'Bearer ' + authToken };
+            const [analyticsRes, historyRes] = await Promise.all([
+                fetch('/api/predictions/analytics', { headers }),
+                fetch('/api/predictions/history', { headers })
+            ]);
+            const analyticsData = await analyticsRes.json();
+            const historyData = await historyRes.json();
+
+            if (analyticsData.success) {
+                renderDashboard(analyticsData.analytics);
+            }
+            if (historyData.success && historyData.total === 0) {
+                document.getElementById('dashboardHistory').innerHTML =
+                    '<p style="color:var(--text-muted);text-align:center;padding:20px">No predictions yet. Make your first analysis!</p>';
             }
         } catch(e) {
-            showToast('Could not load history', 'error');
+            showToast('Could not load dashboard', 'error');
+        }
+        lucide.createIcons();
+    }
+
+    function closeHealthDashboard() {
+        document.getElementById('dashboardModal').classList.remove('show');
+    }
+
+    function renderDashboard(analytics) {
+        document.getElementById('dashTotal').textContent = analytics.total_predictions;
+        document.getElementById('dashAvgConf').textContent = analytics.avg_confidence + '%';
+        document.getElementById('dashAvgSev').textContent = analytics.avg_severity;
+        document.getElementById('dashUrgent').textContent = analytics.triage_breakdown?.URGENT || 0;
+
+        // Severity trend chart
+        const trend = analytics.severity_trend || [];
+        const ctx1 = document.getElementById('severityChart').getContext('2d');
+        if (severityChartInstance) severityChartInstance.destroy();
+        severityChartInstance = new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: trend.map(t => t.date),
+                datasets: [{
+                    label: 'Avg Severity',
+                    data: trend.map(t => t.avg_severity),
+                    borderColor: '#818cf8',
+                    backgroundColor: 'rgba(99,102,241,0.1)',
+                    fill: true, tension: 0.4, pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', maxRotation: 45 } }
+                }
+            }
+        });
+
+        // Disease chart
+        const diseases = analytics.most_common_diseases || [];
+        const ctx2 = document.getElementById('diseaseChart').getContext('2d');
+        if (diseaseChartInstance) diseaseChartInstance.destroy();
+        diseaseChartInstance = new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: diseases.map(d => d.disease.length > 20 ? d.disease.slice(0,18)+'…' : d.disease),
+                datasets: [{
+                    label: 'Count',
+                    data: diseases.map(d => d.count),
+                    backgroundColor: ['#6366f1','#06b6d4','#10b981','#f59e0b','#ef4444'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', stepSize: 1 } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        // Recent history
+        const historyEl = document.getElementById('dashboardHistory');
+        const recent = analytics.recent_predictions || [];
+        if (recent.length === 0) {
+            historyEl.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px">No predictions yet.</p>';
+        } else {
+            historyEl.innerHTML = recent.map(h => `
+                <div class="history-item">
+                    <div>
+                        <div class="disease">${h.disease}</div>
+                        <div class="meta">${h.symptoms_count} symptoms · ${h.confidence}% confidence · ${new Date(h.created_at).toLocaleDateString()}</div>
+                    </div>
+                    <span class="triage-badge ${h.triage_level || 'ROUTINE'}">${h.triage_level || 'ROUTINE'}</span>
+                </div>
+            `).join('');
         }
     }
 
